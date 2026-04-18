@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Test Page</title>
+</head>
+<body>
+
+<h2>Create User</h2>
+
+<input id="name" placeholder="Name"><br>
+<input id="username" placeholder="Username"><br>
+<input id="password" placeholder="Password"><br>
+
+<select id="role">
+    <option value="ADMIN">ADMIN</option>
+    <option value="STAFF">STAFF</option>
+</select>
+
+<button onclick="createUser()">Create</button>
+
+<hr>
+
+<h2>Update User</h2>
+
+<input id="updateId" placeholder="User ID"><br>
+<input id="updateName" placeholder="Name"><br>
+<input id="updateUsername" placeholder="Username"><br>
+<input id="updatePassword" placeholder="Password"><br>
+
+<select id="updateRole">
+    <option value="ADMIN">ADMIN</option>
+    <option value="STAFF">STAFF</option>
+</select>
+
+<button onclick="updateUser()">Update</button>
+
+<hr>
+
+<h2>Delete User</h2>
+
+<input id="deleteId" placeholder="User ID">
+<button onclick="deleteUser()">Delete</button>
+
+<hr>
+
+<h2>All Users</h2>
+<button onclick="loadUsers()">Refresh</button>
+
+<ul id="userList"></ul>
+
+<script>
+    async function createUser() {
+        const user = {
+            name: document.getElementById("name").value,
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+            role: document.getElementById("role").value
+        };
+
+        await fetch("/api/user", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(user)
+        });
+
+        loadUsers();
+    }
+
+    async function updateUser() {
+        const id = document.getElementById("updateId").value;
+
+        const user = {
+            name: document.getElementById("updateName").value,
+            username: document.getElementById("updateUsername").value,
+            password: document.getElementById("updatePassword").value,
+            role: document.getElementById("updateRole").value
+        };
+
+        await fetch(`/api/user/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(user)
+        });
+
+        loadUsers();
+    }
+
+    async function deleteUser() {
+        const id = document.getElementById("deleteId").value;
+
+        await fetch(`/api/user/${id}`, {
+            method: "DELETE"
+        });
+
+        loadUsers();
+    }
+
+    async function loadUsers() {
+        const res = await fetch("/api/user");
+        const users = await res.json();
+
+        const list = document.getElementById("userList");
+        list.innerHTML = "";
+
+        users.forEach(u => {
+            const li = document.createElement("li");
+
+            li.textContent = `${u.id} - ${u.name} (${u.username}) - ${u.role}`;
+
+            // Add quick delete button per user
+            const delBtn = document.createElement("button");
+            delBtn.textContent = "Delete";
+            delBtn.onclick = () => deleteUserById(u.id);
+
+            li.appendChild(delBtn);
+            list.appendChild(li);
+        });
+    }
+
+    async function deleteUserById(id) {
+        await fetch(`/api/user/${id}`, {
+            method: "DELETE"
+        });
+        loadUsers();
+    }
+
+    loadUsers();
+</script>
+
+</body>
+</html>
