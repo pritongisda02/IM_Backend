@@ -39,5 +39,15 @@ class UserService (
         userRepository.deleteById(id)
     }
 
+    fun login(username: String, password: String): User {
+        val user = userRepository.findByUsername(username)
+            ?: throw RuntimeException("Invalid username or password")
+
+        if (!passwordEncoder.matches(password, user.password)) {
+            throw RuntimeException("Invalid username or password")
+        }
+
+        return user
+    }
 }
 
