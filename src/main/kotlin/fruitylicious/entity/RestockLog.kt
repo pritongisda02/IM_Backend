@@ -1,5 +1,6 @@
 package fruitylicious.entity
 
+import jakarta.annotation.Nullable
 import java.time.LocalDateTime
 import jakarta.persistence.*
 
@@ -18,6 +19,8 @@ class RestockLog(
     val ingredient: Ingredient,
 
     val quantityAdded: Double,
+
+    var supplier: String?,
 
     val dateTime: LocalDateTime,
 

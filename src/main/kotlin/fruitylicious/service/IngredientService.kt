@@ -2,7 +2,6 @@ package fruitylicious.service
 
 import fruitylicious.entity.Ingredient
 import fruitylicious.repository.IngredientRepository
-import jakarta.persistence.Id
 import org.springframework.stereotype.Service
 
 @Service
@@ -35,5 +34,9 @@ class IngredientService (
             throw RuntimeException("Ingredient does not exist")
         }
         ingredientRepository.deleteById(id)
+    }
+
+    fun searchIngredient(name: String): List<Ingredient>{
+        return ingredientRepository.findByNameContainingIgnoreCase(name)
     }
 }

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ingredient Test</title>
+</head>
+<body>
+
+<h2>Ingredient Test</h2>
+
+<!-- CREATE -->
+<h3>Add Ingredient</h3>
+<input id="name" placeholder="Name"><br>
+<select id="unit">
+    <option>PCS</option>
+    <option>G</option>
+    <option>ML</option>
+    <option>CAN</option>
+</select><br>
+<input id="weight" placeholder="Weight (optional)"><br>
+<label>
+    Packaging:
+    <input type="checkbox" id="packaging">
+</label><br>
+<button onclick="addIngredient()">Add</button>
+
+<hr>
+
+<!-- GET -->
+<h3>All Ingredients</h3>
+<button onclick="getIngredients()">Load</button>
+<ul id="list"></ul>
+
+<script>
+    const API = "http://localhost:8080/api/ingredient";
+
+    function addIngredient() {
+        fetch(API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: document.getElementById("name").value,
+                unitType: document.getElementById("unit").value,
+                estimatedWeightPerUnit: document.getElementById("weight").value || null,
+                isPackaging: document.getElementById("packaging").checked
+            })
+        }).then(res => res.json())
+          .then(data => alert("Added: " + data.name));
+    }
+
+    function getIngredients() {
+        fetch(API)
+        .then(res => res.json())
+        .then(data => {
+            const list = document.getElementById("list");
+            list.innerHTML = "";
+            data.forEach(i => {
+                const li = document.createElement("li");
+                li.innerText = `${i.name} (${i.unitType})`;
+                list.appendChild(li);
+            });
+        });
+    }
+</script>
+
+</body>
+</html>

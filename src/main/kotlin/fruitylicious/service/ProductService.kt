@@ -14,7 +14,11 @@ class ProductService (
     }
 
     fun getAllProduct():List<Product>{
-        return productRepository.findAll()
+        return productRepository.findByIsAddOnFalse()
+    }
+
+    fun getAllAddOn(): List<Product>{
+        return productRepository.findByIsAddOnTrue()
     }
 
     fun updateProduct(id: Long, updated: Product): Product{

@@ -36,4 +36,9 @@ class IngredientController (
     fun deleteIngredient(@PathVariable id: Long){
         return ingredientService.deleteIngredient(id)
     }
+
+    @GetMapping("/search")
+    fun searchIngredient(@RequestBody name: String): List<Ingredient>{
+        return ingredientService.searchIngredient(name)
+    }
 }

@@ -36,4 +36,14 @@ class UserController (
     fun deleteUser(@PathVariable id: Long) {
         userService.deleteUser(id)
     }
+
+    @PostMapping("/login")
+    fun login(@RequestBody req: LoginRequest): User {
+        return userService.login(req.username, req.password)
+    }
+
+    data class LoginRequest(
+        val username: String,
+        val password: String
+    )
 }
