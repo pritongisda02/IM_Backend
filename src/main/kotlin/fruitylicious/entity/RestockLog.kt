@@ -1,6 +1,5 @@
 package fruitylicious.entity
 
-import jakarta.annotation.Nullable
 import java.time.LocalDateTime
 import jakarta.persistence.*
 

@@ -14,11 +14,11 @@ class ProductService (
     }
 
     fun getAllProduct():List<Product>{
-        return productRepository.findByIsAddOnFalse()
+        return productRepository.findByIsAddonFalse()
     }
 
     fun getAllAddOn(): List<Product>{
-        return productRepository.findByIsAddOnTrue()
+        return productRepository.findByIsAddonTrue()
     }
 
     fun updateProduct(id: Long, updated: Product): Product{

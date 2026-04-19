@@ -1,9 +1,7 @@
 package fruitylicious.controller
 
 import fruitylicious.entity.Product
-import fruitylicious.entity.User
 import fruitylicious.service.ProductService
-import fruitylicious.service.UserService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
