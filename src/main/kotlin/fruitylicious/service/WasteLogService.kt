@@ -3,7 +3,6 @@ package fruitylicious.service
 import fruitylicious.entity.WasteLog
 import fruitylicious.repository.WasteLogRepository
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Service

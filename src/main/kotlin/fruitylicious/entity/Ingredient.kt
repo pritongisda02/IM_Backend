@@ -22,5 +22,5 @@ class Ingredient(
 )
 
 enum class UnitType {
-    PCS, G, ML, CAN
+    PCS, G, ML, CAN, PACK
 }
