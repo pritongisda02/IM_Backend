@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDateTime
 
 @RestController
-@RequestMapping("/RestockLog")
+@RequestMapping("/api/restockLog")
 class RestockLogController (
     private val restockLogService: RestockLogService
 )
