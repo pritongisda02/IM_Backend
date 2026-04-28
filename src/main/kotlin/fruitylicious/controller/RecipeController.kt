@@ -1,9 +1,10 @@
 package fruitylicious.controller
 
 import fruitylicious.config.JwtTokenProvider
-import fruitylicious.dto.IngredientRequest
-import fruitylicious.dto.IngredientResponse
-import fruitylicious.service.IngredientService
+import fruitylicious.dto.RecipeRequest
+import fruitylicious.dto.RecipeResponse
+import fruitylicious.dto.RecipeUpdateRequest
+import fruitylicious.service.RecipeService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -16,72 +17,51 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/ingredients")
-class IngredientController(
-    private val ingredientService: IngredientService,
+@RequestMapping("/api/recipes")
+@PreAuthorize("hasRole('ADMIN')")
+class RecipeController(
+    private val recipeService: RecipeService,
     private val jwtTokenProvider: JwtTokenProvider
 ) {
 
-    // -------------------------------------------------------------------------
-    // Staff + Admin
-    // -------------------------------------------------------------------------
-
-    @GetMapping
-    fun getAll(): ResponseEntity<List<IngredientResponse>> =
-        ResponseEntity.ok(ingredientService.getAll())
-
-    @GetMapping("/{id}")
-    fun getById(
-        @PathVariable id: Long
-    ): ResponseEntity<IngredientResponse> =
-        ResponseEntity.ok(ingredientService.getById(id))
-
-    @GetMapping("/search")
-    fun search(
-        @RequestParam name: String
-    ): ResponseEntity<List<IngredientResponse>> =
-        ResponseEntity.ok(ingredientService.searchByName(name))
-
-    // -------------------------------------------------------------------------
-    // Admin Only
-    // -------------------------------------------------------------------------
+    @GetMapping("/{productId}")
+    fun getByProduct(
+        @PathVariable productId: Long
+    ): ResponseEntity<List<RecipeResponse>> =
+        ResponseEntity.ok(recipeService.getByProduct(productId))
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     fun create(
-        @Valid @RequestBody request: IngredientRequest,
+        @Valid @RequestBody request: RecipeRequest,
         httpRequest: HttpServletRequest
-    ): ResponseEntity<IngredientResponse> {
+    ): ResponseEntity<RecipeResponse> {
         val (userId, branchId) = resolveUser(httpRequest)
-        val response = ingredientService.create(request, userId, branchId)
+        val response = recipeService.create(request, userId, branchId)
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{recipeId}")
     fun update(
-        @PathVariable id: Long,
-        @Valid @RequestBody request: IngredientRequest,
+        @PathVariable recipeId: Long,
+        @Valid @RequestBody request: RecipeUpdateRequest,
         httpRequest: HttpServletRequest
-    ): ResponseEntity<IngredientResponse> {
+    ): ResponseEntity<RecipeResponse> {
         val (userId, branchId) = resolveUser(httpRequest)
-        val response = ingredientService.update(id, request, userId, branchId)
+        val response = recipeService.update(recipeId, request, userId, branchId)
         return ResponseEntity.ok(response)
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{recipeId}")
     fun delete(
-        @PathVariable id: Long,
+        @PathVariable recipeId: Long,
         httpRequest: HttpServletRequest
     ): ResponseEntity<Map<String, String>> {
         val (userId, branchId) = resolveUser(httpRequest)
-        ingredientService.delete(id, userId, branchId)
-        return ResponseEntity.ok(mapOf("message" to "Ingredient $id deleted successfully"))
+        recipeService.delete(recipeId, userId, branchId)
+        return ResponseEntity.ok(mapOf("message" to "Recipe $recipeId deleted successfully"))
     }
 
     // -------------------------------------------------------------------------
