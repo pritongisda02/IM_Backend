@@ -1,29 +1,44 @@
 package fruitylicious.entity
 
-import jakarta.persistence.*
-import java.time.LocalDateTime
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
+import java.math.BigDecimal
+import java.time.Instant
 
 @Entity
-@Table(name = "WASTE_LOGS")
-class WasteLog(
+@Table(name = "waste_logs")
+class WasteLog : BaseEntity() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "waste_seq")
-    @SequenceGenerator(name = "waste_seq", sequenceName = "WASTE_SEQ", allocationSize = 1)
-    @Column(name = "WASTE_ID")
-    val id: Long = 0,
+    @Column(name = "waste_id", nullable = false)
+    var wasteId: Long = 0
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "INGREDIENT_ID")
-    val ingredient: Ingredient,
-
-    val quantity: Double,
-
-    val reason: String,
-
-    val dateTime: LocalDateTime,
+    @JoinColumn(name = "ingredient_id", nullable = false)
+    var ingredient: Ingredient = Ingredient()
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    val user: User
-)
+    @JoinColumn(name = "branch_id", nullable = false)
+    var branch: Branch = Branch()
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    var user: User = User()
+
+    @Column(name = "quantity", nullable = false, precision = 10, scale = 4)
+    var quantity: BigDecimal = BigDecimal.ZERO
+
+    @Column(name = "image", length = 500)
+    var image: String? = null
+
+    @Column(name = "reason", length = 255)
+    var reason: String? = null
+
+    @Column(name = "date_time", nullable = false)
+    var dateTime: Instant = Instant.now()
+}

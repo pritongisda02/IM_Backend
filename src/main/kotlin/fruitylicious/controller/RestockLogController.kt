@@ -1,7 +1,6 @@
 package fruitylicious.controller
 
 import fruitylicious.entity.RestockLog
-import fruitylicious.service.RestockLogService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
