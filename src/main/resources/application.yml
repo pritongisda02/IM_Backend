@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: fruitylicious-pos
+
+  # --- Local SQLite DataSource (primary) ---
+  datasource:
+    local:
+      driver-class-name: org.sqlite.JDBC
+      url: jdbc:sqlite:/data/fruitylicious/pos_local.db
+      username: ""
+      password: ""
+
+    # --- Oracle DataSource (sync only) ---
+    oracle:
+      driver-class-name: oracle.jdbc.OracleDriver
+      url: jdbc:oracle:thin:@${ORACLE_HOST:localhost}:${ORACLE_PORT:1521}/${ORACLE_SERVICE:ORCLPDB1}
+      username: ${ORACLE_USERNAME:fruitylicious}
+      password: ${ORACLE_PASSWORD:changeme}
+
+  # --- JPA / Hibernate ---
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+
+  # --- Scheduling ---
+  task:
+    scheduling:
+      pool:
+        size: 2
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# --- App-level config ---
+app:
+  branch-id: ${BRANCH_ID:1}
+  jwt:
+    secret: ${JWT_SECRET:fruitylicious-super-secret-key-change-in-production-256bit}
+    expiration-ms: 86400000   # 24 hours
+
+  sync:
+    interval-ms: 300000        # 5 minutes
+    low-stock-threshold: 10
+
+logging:
+  level:
+    root: INFO
+    fruitylicious: DEBUG
+    org.hibernate.SQL: WARN
