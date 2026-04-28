@@ -1,4 +1,4 @@
-package Fruitylicous.dto
+package fruitylicious.dto
 
 import java.math.BigDecimal
 import java.time.LocalDate
