@@ -1,5 +1,4 @@
 package fruitylicious.service
-import fruitylicious.Config
 import fruitylicious.entity.User
 import fruitylicious.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
