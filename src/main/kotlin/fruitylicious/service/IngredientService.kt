@@ -1,42 +1,163 @@
 package fruitylicious.service
 
+import fruitylicious.config.DuplicateResourceException
+import fruitylicious.dto.IngredientRequest
+import fruitylicious.dto.IngredientResponse
 import fruitylicious.entity.Ingredient
-import fruitylicious.repository.oracle.OracleIngredientRepository
+import fruitylicious.repository.local.LocalIngredientRepository
+import jakarta.persistence.EntityNotFoundException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
-class IngredientService (
-    private val ingredientRepository: OracleIngredientRepository
-)
-{
-    fun createIngredient(ingredient: Ingredient): Ingredient{
-        return ingredientRepository.save(ingredient)
-    }
+class IngredientService(
+    private val localIngredientRepository: LocalIngredientRepository,
+    private val auditService: AuditService
+) {
 
-    fun getAllIngredient(): List<Ingredient>{
-        return ingredientRepository.findAll()
-    }
+    // -------------------------------------------------------------------------
+    // Reads
+    // -------------------------------------------------------------------------
 
-    fun updateIngredient(id: Long, updated: Ingredient): Ingredient{
-        val existing = ingredientRepository.findById(id)
-            .orElseThrow{ RuntimeException("Ingredient does not exist")}
+    @Transactional(readOnly = true)
+    fun getAll(): List<IngredientResponse> =
+        localIngredientRepository.findAll().map { it.toResponse() }
 
-        existing.name = updated.name
-        existing.unitType = updated.unitType
-        existing.estimatedWeightPerUnit = updated.estimatedWeightPerUnit
-        existing.isPackaging = existing.isPackaging
+    @Transactional(readOnly = true)
+    fun getById(ingredientId: Long): IngredientResponse =
+        localIngredientRepository.findById(ingredientId)
+            .orElseThrow { EntityNotFoundException("Ingredient not found: $ingredientId") }
+            .toResponse()
 
-        return ingredientRepository.save(existing)
-    }
+    @Transactional(readOnly = true)
+    fun searchByName(name: String): List<IngredientResponse> =
+        localIngredientRepository.findByIngredientNameContainingIgnoreCase(name)
+            .map { it.toResponse() }
 
-    fun deleteIngredient(id: Long){
-        if (!ingredientRepository.existsById(id)){
-            throw RuntimeException("Ingredient does not exist")
+    /**
+     * Internal lookup used by InventoryService and other services
+     * that need the entity rather than the DTO.
+     */
+    @Transactional(readOnly = true)
+    fun getEntityById(ingredientId: Long): Ingredient =
+        localIngredientRepository.findById(ingredientId)
+            .orElseThrow { EntityNotFoundException("Ingredient not found: $ingredientId") }
+
+    // -------------------------------------------------------------------------
+    // Writes
+    // -------------------------------------------------------------------------
+
+    @Transactional
+    fun create(
+        request: IngredientRequest,
+        userId: Long,
+        branchId: Long
+    ): IngredientResponse {
+        if (localIngredientRepository.existsByIngredientNameIgnoreCase(request.ingredientName)) {
+            throw DuplicateResourceException(
+                "Ingredient already exists: ${request.ingredientName}"
+            )
         }
-        ingredientRepository.deleteById(id)
+
+        val ingredient = Ingredient().apply {
+            ingredientName         = request.ingredientName
+            image                  = request.image
+            unitType               = request.unitType
+            estimatedWeightPerUnit = request.estimatedWeightPerUnit
+            isPackaging            = request.isPackaging
+            lastModified           = LocalDateTime.now()
+            isSynced               = false
+        }
+
+        val saved = localIngredientRepository.save(ingredient)
+
+        auditService.log(
+            userId        = userId,
+            branchId      = branchId,
+            action        = AuditAction.ADD_INGREDIENT,
+            tableAffected = "ingredients",
+            details       = "Created ingredient '${saved.ingredientName}' (id=${saved.ingredientId})"
+        )
+
+        return saved.toResponse()
     }
 
-    fun searchIngredient(name: String): List<Ingredient>{
-        return ingredientRepository.findByNameContainingIgnoreCase(name)
+    @Transactional
+    fun update(
+        ingredientId: Long,
+        request: IngredientRequest,
+        userId: Long,
+        branchId: Long
+    ): IngredientResponse {
+        val ingredient = localIngredientRepository.findById(ingredientId)
+            .orElseThrow { EntityNotFoundException("Ingredient not found: $ingredientId") }
+
+        val existing = localIngredientRepository
+            .findByIngredientNameContainingIgnoreCase(request.ingredientName)
+            .firstOrNull {
+                it.ingredientId != ingredientId &&
+                        it.ingredientName.equals(request.ingredientName, ignoreCase = true)
+            }
+
+        if (existing != null) {
+            throw DuplicateResourceException(
+                "Another ingredient already has name: ${request.ingredientName}"
+            )
+        }
+
+        ingredient.apply {
+            ingredientName         = request.ingredientName
+            image                  = request.image
+            unitType               = request.unitType
+            estimatedWeightPerUnit = request.estimatedWeightPerUnit
+            isPackaging            = request.isPackaging
+            lastModified           = LocalDateTime.now()
+            isSynced               = false
+        }
+
+        val saved = localIngredientRepository.save(ingredient)
+
+        auditService.log(
+            userId        = userId,
+            branchId      = branchId,
+            action        = AuditAction.UPDATE_INGREDIENT,
+            tableAffected = "ingredients",
+            details       = "Updated ingredient '${saved.ingredientName}' (id=${saved.ingredientId})"
+        )
+
+        return saved.toResponse()
     }
+
+    @Transactional
+    fun delete(ingredientId: Long, userId: Long, branchId: Long) {
+        val ingredient = localIngredientRepository.findById(ingredientId)
+            .orElseThrow { EntityNotFoundException("Ingredient not found: $ingredientId") }
+
+        localIngredientRepository.delete(ingredient)
+
+        auditService.log(
+            userId        = userId,
+            branchId      = branchId,
+            action        = AuditAction.DELETE_INGREDIENT,
+            tableAffected = "ingredients",
+            details       = "Deleted ingredient '${ingredient.ingredientName}' (id=$ingredientId)"
+        )
+    }
+
+    // -------------------------------------------------------------------------
+    // Mapper
+    // -------------------------------------------------------------------------
+
+    fun Ingredient.toResponse() = IngredientResponse(
+        ingredientId           = ingredientId,
+        ingredientName         = ingredientName,
+        image                  = image,
+        unitType               = unitType,
+        estimatedWeightPerUnit = estimatedWeightPerUnit,
+        isPackaging            = isPackaging,
+        lastModified           = lastModified,
+        isSynced               = isSynced,
+        syncedAt               = syncedAt
+    )
 }

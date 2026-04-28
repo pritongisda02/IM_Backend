@@ -1,4 +1,4 @@
-package Fruitylicous.dto
+package fruitylicious.dto
 
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotNull
