@@ -2,8 +2,11 @@ package fruitylicious.repository
 
 import fruitylicious.entity.Product
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
+import java.time.Instant
 
-interface ProductRepository : JpaRepository <Product, Long> {
-    fun findByIsAddonFalse(): List<Product>
-    fun findByIsAddonTrue(): List<Product>
+@Repository
+interface ProductRepository : JpaRepository<Product, Long> {
+
+    fun findAllByLastModifiedAfter(since: Instant): List<Product>
 }
