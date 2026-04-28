@@ -2,38 +2,30 @@ package fruitylicious.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "STAFF_LOGS")
-class StaffLogs (
+@Table(name = "staff_logs")
+class StaffLog : BaseEntity() {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "audit_seq")
-    @SequenceGenerator(name = "audit_seq", sequenceName = "AUDIT_SEQ", allocationSize = 1)
-    @Column(name = "STAFF_ID")
-    val id: Long = 0,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "log_id", nullable = false)
+    var logId: Long = 0
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    val user: User,
+    @Column(name = "user_id", nullable = false)
+    var userId: Long = 0
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "BRANCH_ID")
-    val branch: Branch,
+    @Column(name = "branch_id", nullable = false)
+    var branchId: Long = 0
 
-    val image: String,
+    @Column(name = "clock_in", nullable = false)
+    var clockIn: LocalDateTime = LocalDateTime.now()
 
-    val clockIn: LocalDateTime,
-
-    val clockOut: LocalDateTime,
-
-    val lastModified: LocalDateTime
-)
+    @Column(name = "clock_out")
+    var clockOut: LocalDateTime? = null    // null = currently clocked in
+}

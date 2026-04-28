@@ -1,25 +1,31 @@
 package fruitylicious.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
+import java.math.BigDecimal
+
 @Entity
-@Table(name = "TRANSACTION_ITEMS")
-class TransactionItem(
+@Table(name = "transaction_items")
+class TransactionItem : BaseEntity() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_item_seq")
-    @SequenceGenerator(name = "transaction_item_seq", sequenceName = "TRANSACTION_ITEM_SEQ", allocationSize = 1)
-    @Column(name = "TRANSACTION_ITEM_ID")
-    val id: Long = 0,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "transaction_item_id", nullable = false)
+    var transactionItemId: Long = 0
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TRANSACTION_ID")
-    val transaction: Transaction,
+    @Column(name = "transaction_id", nullable = false)
+    var transactionId: Long = 0
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PRODUCT_ID")
-    val product: Product,
+    @Column(name = "product_id", nullable = false)
+    var productId: Long = 0
 
-    val quantity: Int,
+    @Column(name = "quantity", nullable = false)
+    var quantity: Int = 0
 
-    val subtotal: Double
-)
+    @Column(name = "subtotal", nullable = false, precision = 12, scale = 2)
+    var subtotal: BigDecimal = BigDecimal.ZERO
+}

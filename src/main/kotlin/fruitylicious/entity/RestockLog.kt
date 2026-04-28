@@ -1,29 +1,38 @@
 package fruitylicious.entity
 
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
+import java.math.BigDecimal
 import java.time.LocalDateTime
-import jakarta.persistence.*
 
 @Entity
-@Table(name = "RESTOCK_LOGS")
-class RestockLog(
+@Table(name = "restock_logs")
+class RestockLog : BaseEntity() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "restock_seq")
-    @SequenceGenerator(name = "restock_seq", sequenceName = "RESTOCK_SEQ", allocationSize = 1)
-    @Column(name = "RESTOCK_ID")
-    val id: Long = 0,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "restock_id", nullable = false)
+    var restockId: Long = 0
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "INGREDIENT_ID")
-    val ingredient: Ingredient,
+    @Column(name = "ingredient_id", nullable = false)
+    var ingredientId: Long = 0
 
-    val quantityAdded: Double,
+    @Column(name = "branch_id", nullable = false)
+    var branchId: Long = 0
 
-    var supplier: String?,
+    @Column(name = "user_id", nullable = false)
+    var userId: Long = 0
 
-    val dateTime: LocalDateTime,
+    @Column(name = "quantity_added", nullable = false, precision = 12, scale = 4)
+    var quantityAdded: BigDecimal = BigDecimal.ZERO
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    val user: User
-)
+    @Column(name = "supplier", length = 200)
+    var supplier: String? = null   // optional
+
+    @Column(name = "date_time", nullable = false)
+    var dateTime: LocalDateTime = LocalDateTime.now()
+}

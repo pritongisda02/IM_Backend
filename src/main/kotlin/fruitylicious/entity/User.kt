@@ -1,27 +1,33 @@
 package fruitylicious.entity
-import jakarta.persistence.*
+
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 
 @Entity
-@Table(name = "USERS")
-class User(
+@Table(name = "users")
+class User : BaseEntity() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
-    @SequenceGenerator(name = "user_seq", sequenceName = "USER_SEQ", allocationSize = 1)
-    @Column(name = "USER_ID")
-    var id: Long = 0,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id", nullable = false)
+    var userId: Long = 0
 
-    var name: String,
+    @Column(name = "name", nullable = false, length = 150)
+    var name: String = ""
 
-    @Column(unique = true)
-    var username: String,
+    @Column(name = "role", nullable = false, length = 10)
+    var role: String = ""          // "admin" | "staff"
 
-    var password: String,
+    @Column(name = "username", nullable = false, unique = true, length = 80)
+    var username: String = ""
 
-    @Enumerated(EnumType.STRING)
-    var role: UserRole
-)
+    @Column(name = "password", nullable = false, length = 255)
+    var password: String = ""
 
-enum class UserRole {
-    ADMIN, STAFF
+    @Column(name = "branch_id")
+    var branchId: Long? = null     // null means admin with no fixed branch
 }

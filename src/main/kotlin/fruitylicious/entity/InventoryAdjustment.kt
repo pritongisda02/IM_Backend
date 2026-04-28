@@ -1,29 +1,38 @@
 package fruitylicious.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "INVENTORY_ADJUSTMENTS")
-class InventoryAdjustment(
+@Table(name = "inventory_adjustments")
+class InventoryAdjustment : BaseEntity() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "adjustment_seq")
-    @SequenceGenerator(name = "adjustment_seq", sequenceName = "ADJUSTMENT_SEQ", allocationSize = 1)
-    @Column(name = "ADJUSTMENT_ID")
-    val id: Long = 0,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "adjustment_id", nullable = false)
+    var adjustmentId: Long = 0
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "INGREDIENT_ID")
-    val ingredient: Ingredient,
+    @Column(name = "ingredient_id", nullable = false)
+    var ingredientId: Long = 0
 
-    val adjustmentAmount: Double,
+    @Column(name = "branch_id", nullable = false)
+    var branchId: Long = 0
 
-    val reason: String,
+    @Column(name = "user_id", nullable = false)
+    var userId: Long = 0
 
-    val dateTime: LocalDateTime,
+    @Column(name = "adjustment_amount", nullable = false, precision = 12, scale = 4)
+    var adjustmentAmount: BigDecimal = BigDecimal.ZERO   // positive = add, negative = subtract
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    val user: User
-)
+    @Column(name = "reason", nullable = false, length = 500)
+    var reason: String = ""
+
+    @Column(name = "date_time", nullable = false)
+    var dateTime: LocalDateTime = LocalDateTime.now()
+}

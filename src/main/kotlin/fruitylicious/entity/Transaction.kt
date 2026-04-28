@@ -1,37 +1,38 @@
 package fruitylicious.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "TRANSACTIONS")
-class Transaction(
+@Table(name = "transactions")
+class Transaction : BaseEntity() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_seq")
-    @SequenceGenerator(name = "transaction_seq", sequenceName = "TRANSACTION_SEQ", allocationSize = 1)
-    @Column(name = "TRANSACTION_ID")
-    val id: Long = 0,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "transaction_id", nullable = false)
+    var transactionId: Long = 0
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    val user: User,
+    @Column(name = "user_id", nullable = false)
+    var userId: Long = 0
 
-    val totalAmount: Double,
+    @Column(name = "branch_id", nullable = false)
+    var branchId: Long = 0
 
-    @Enumerated(EnumType.STRING)
-    val paymentType: PaymentType,
+    @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
+    var totalAmount: BigDecimal = BigDecimal.ZERO
 
-    val dateTime: LocalDateTime,
+    @Column(name = "payment_type", nullable = false, length = 50)
+    var paymentType: String = ""   // e.g. "cash", "gcash", "card"
 
-    @Enumerated(EnumType.STRING)
-    val status: TransactionStatus
-)
+    @Column(name = "date_time", nullable = false)
+    var dateTime: LocalDateTime = LocalDateTime.now()
 
-enum class PaymentType {
-    CASH, ONLINE
-}
-
-enum class TransactionStatus {
-    COMPLETED, VOID
+    @Column(name = "status", nullable = false, length = 20)
+    var status: String = "completed"   // "completed" | "void"
 }

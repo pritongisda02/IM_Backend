@@ -1,24 +1,28 @@
 package fruitylicious.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
+import java.math.BigDecimal
 
 @Entity
-@Table(name = "PRODUCT_RECIPES")
-class ProductRecipe(
+@Table(name = "product_recipes")
+class ProductRecipe : BaseEntity() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "recipe_seq")
-    @SequenceGenerator(name = "recipe_seq", sequenceName = "RECIPE_SEQ", allocationSize = 1)
-    @Column(name = "RECIPE_ID")
-    val id: Long = 0,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "recipe_id", nullable = false)
+    var recipeId: Long = 0
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PRODUCT_ID")
-    val product: Product,
+    @Column(name = "product_id", nullable = false)
+    var productId: Long = 0
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "INGREDIENT_ID")
-    val ingredient: Ingredient,
+    @Column(name = "ingredient_id", nullable = false)
+    var ingredientId: Long = 0
 
-    val quantityRequired: Double
-)
+    @Column(name = "quantity_required", nullable = false, precision = 10, scale = 4)
+    var quantityRequired: BigDecimal = BigDecimal.ZERO
+}
