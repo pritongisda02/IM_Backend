@@ -1,6 +1,6 @@
 package fruitylicious.service
 
-import fruitylicious.repository.ProductRecipeRepository
+import fruitylicious.repository.oracle.ProductRecipeRepository
 import org.springframework.stereotype.Service
 
 @Service

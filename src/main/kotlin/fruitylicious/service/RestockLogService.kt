@@ -1,14 +1,13 @@
 package fruitylicious.service
 
 import fruitylicious.entity.RestockLog
-import fruitylicious.repository.RestockLogRepository
-import org.springframework.cglib.core.Local
+import fruitylicious.repository.oracle.OracleRestockLogRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
 @Service
 class RestockLogService (
-    private val restockLogRepository: RestockLogRepository
+    private val restockLogRepository: OracleRestockLogRepository
 )
 {
     fun createRestockLog(log: RestockLog): RestockLog{

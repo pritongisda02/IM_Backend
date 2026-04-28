@@ -1,13 +1,13 @@
 package fruitylicious.service
 import fruitylicious.entity.User
-import fruitylicious.repository.UserRepository
+import fruitylicious.repository.oracle.OracleUserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 
 @Service
 class UserService (
-    private val userRepository: UserRepository,
+    private val userRepository: OracleUserRepository,
     private val passwordEncoder: PasswordEncoder
 )
 {

@@ -1,13 +1,13 @@
 package fruitylicious.service
 
 import fruitylicious.entity.WasteLog
-import fruitylicious.repository.WasteLogRepository
+import fruitylicious.repository.oracle.OracleWasteLogRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
 @Service
 class WasteLogService (
-    private val wasteLogRepository: WasteLogRepository
+    private val wasteLogRepository: OracleWasteLogRepository
 )
 {
     fun createWasteLog(waste: WasteLog): WasteLog{

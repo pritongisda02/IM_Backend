@@ -1,12 +1,12 @@
 package fruitylicious.service
 
 import fruitylicious.entity.Ingredient
-import fruitylicious.repository.IngredientRepository
+import fruitylicious.repository.oracle.OracleIngredientRepository
 import org.springframework.stereotype.Service
 
 @Service
 class IngredientService (
-    private val ingredientRepository: IngredientRepository
+    private val ingredientRepository: OracleIngredientRepository
 )
 {
     fun createIngredient(ingredient: Ingredient): Ingredient{

@@ -1,12 +1,12 @@
 package fruitylicious.service
 
 import fruitylicious.entity.InventoryAdjustment
-import fruitylicious.repository.InventoryAdjustmentRepository
+import fruitylicious.repository.oracle.OracleInventoryAdjustmentRepository
 import org.springframework.stereotype.Service
 
 @Service
 class InventoryAdjustmentService (
-    private val inventoryAdjustmentRepository: InventoryAdjustmentRepository
+    private val inventoryAdjustmentRepository: OracleInventoryAdjustmentRepository
 )
 {
     fun createAdjustment(adjust: InventoryAdjustment): InventoryAdjustment{
