@@ -10,9 +10,9 @@ import jakarta.persistence.Table
 @Table(
     name = "transaction_items",
     indexes = [
-        Index(name = "idx_transaction_items_transaction", columnList = "transaction_id"),
-        Index(name = "idx_transaction_items_product", columnList = "product_id"),
-        Index(name = "idx_transaction_items_variant", columnList = "variant_id")
+        Index(name = "idx_ti_txn", columnList = "transaction_id"),
+        Index(name = "idx_ti_prod", columnList = "product_id"),
+        Index(name = "idx_ti_var", columnList = "variant_id")
     ]
 )
 open class TransactionItemEntity(

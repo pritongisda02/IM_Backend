@@ -10,11 +10,11 @@ import jakarta.persistence.Table
 @Table(
     name = "transactions",
     indexes = [
-        Index(name = "idx_transactions_user", columnList = "user_id"),
-        Index(name = "idx_transactions_branch", columnList = "branch_id"),
-        Index(name = "idx_transactions_date", columnList = "date_time"),
-        Index(name = "idx_transactions_status", columnList = "status"),
-        Index(name = "idx_transactions_branch_date", columnList = "branch_id,date_time")
+        Index(name = "idx_txn_user", columnList = "user_id"),
+        Index(name = "idx_txn_branch", columnList = "branch_id"),
+        Index(name = "idx_txn_date", columnList = "date_time"),
+        Index(name = "idx_txn_status", columnList = "status"),
+        Index(name = "idx_txn_branch_date", columnList = "branch_id,date_time")
     ]
 )
 open class TransactionEntity(
