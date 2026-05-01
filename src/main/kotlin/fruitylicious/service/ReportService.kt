@@ -188,7 +188,7 @@ class ReportService(
 
     // ── Mapping helpers ───────────────────────────────────────────────────────
 
-    private fun fruitylicious.entity.WasteLog.toResponse() = WasteLogResponse(
+    private fun fruitylicious.entity.WasteLogEntity.toResponse() = WasteLogResponse(
         wasteId = wasteId,
         ingredientId = ingredient.ingredientId,
         ingredientName = ingredient.ingredientName,
@@ -202,7 +202,7 @@ class ReportService(
         lastModified = lastModified
     )
 
-    private fun fruitylicious.entity.RestockLog.toResponse() = RestockLogResponse(
+    private fun fruitylicious.entity.RestockLogEntity.toResponse() = RestockLogResponse(
         restockId = restockId,
         ingredientId = ingredient.ingredientId,
         ingredientName = ingredient.ingredientName,
@@ -225,7 +225,7 @@ class ReportService(
         lastModified = lastModified
     )
 
-    private fun fruitylicious.entity.Transaction.toResponse(
+    private fun fruitylicious.entity.TransactionEntity.toResponse(
         items: List<TransactionItemResponse> = emptyList()
     ) = TransactionResponse(
         transactionId = transactionId,
@@ -240,7 +240,7 @@ class ReportService(
         lastModified = lastModified
     )
 
-    private fun fruitylicious.entity.TransactionItem.toResponse() = TransactionItemResponse(
+    private fun fruitylicious.entity.TransactionItemEntity.toResponse() = TransactionItemResponse(
         transactionItemId = transactionItemId,
         transactionId = transaction.transactionId,
         productId = product.productId,
@@ -250,7 +250,7 @@ class ReportService(
         lastModified = lastModified
     )
 
-    private fun fruitylicious.entity.StaffLog.toResponse() = StaffLogResponse(
+    private fun fruitylicious.entity.StaffLogEntity.toResponse() = StaffLogResponse(
         logId = logId,
         userId = user.userId,
         userName = user.name,

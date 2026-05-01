@@ -1,7 +1,7 @@
 package fruitylicious.service
 
-import fruitylicious.dto.LoginRequest
-import fruitylicious.dto.LoginResponse
+import fruitylicious.auth.LoginRequest
+import fruitylicious.auth.LoginResponse
 import fruitylicious.repository.UserRepository
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys

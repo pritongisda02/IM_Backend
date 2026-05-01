@@ -1,7 +1,7 @@
 package fruitylicious.controller
 
-import fruitylicious.dto.LoginRequest
-import fruitylicious.dto.LoginResponse
+import fruitylicious.auth.LoginRequest
+import fruitylicious.auth.LoginResponse
 import fruitylicious.service.AuthService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity

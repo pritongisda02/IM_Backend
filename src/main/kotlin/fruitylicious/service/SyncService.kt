@@ -104,7 +104,7 @@ class SyncService(
             val user = userRepository.findById(req.userId)
                 .orElseThrow { NoSuchElementException("User ${req.userId} not found.") }
 
-            val entity = existing ?: RestockLog()
+            val entity = existing ?: RestockLogEntity()
             entity.restockId = req.restockId
             entity.ingredient = ingredient
             entity.branch = branch
@@ -140,7 +140,7 @@ class SyncService(
             val user = userRepository.findById(req.userId)
                 .orElseThrow { NoSuchElementException("User ${req.userId} not found.") }
 
-            val entity = existing ?: InventoryAdjustment()
+            val entity = existing ?: InventoryAdjustmentEntity()
             entity.adjustmentId = req.adjustmentId
             entity.ingredient = ingredient
             entity.branch = branch
@@ -176,7 +176,7 @@ class SyncService(
             val user = userRepository.findById(req.userId)
                 .orElseThrow { NoSuchElementException("User ${req.userId} not found.") }
 
-            val entity = existing ?: WasteLog()
+            val entity = existing ?: WasteLogEntity()
             entity.wasteId = req.wasteId
             entity.ingredient = ingredient
             entity.branch = branch
@@ -211,7 +211,7 @@ class SyncService(
             val branch = branchRepository.findById(req.branchId)
                 .orElseThrow { NoSuchElementException("Branch ${req.branchId} not found.") }
 
-            val entity = existing ?: Transaction()
+            val entity = existing ?: TransactionEntity()
             entity.transactionId = req.transactionId
             entity.user = user
             entity.branch = branch
@@ -245,7 +245,7 @@ class SyncService(
             val product = productRepository.findById(req.productId)
                 .orElseThrow { NoSuchElementException("Product ${req.productId} not found.") }
 
-            val entity = existing ?: TransactionItem()
+            val entity = existing ?: TransactionItemEntity()
             entity.transactionItemId = req.transactionItemId
             entity.transaction = transaction
             entity.product = product
@@ -310,7 +310,7 @@ class SyncService(
             val branch = branchRepository.findById(req.branchId)
                 .orElseThrow { NoSuchElementException("Branch ${req.branchId} not found.") }
 
-            val entity = existing ?: StaffLog()
+            val entity = existing ?: StaffLogEntity()
             entity.logId = req.logId
             entity.user = user
             entity.branch = branch
@@ -344,7 +344,7 @@ class SyncService(
         lastModified = lastModified
     )
 
-    private fun fruitylicious.entity.Product.toResponse() = ProductResponse(
+    private fun fruitylicious.entity.ProductEntity.toResponse() = ProductResponse(
         productId = productId,
         image = image,
         productName = productName,
@@ -353,7 +353,7 @@ class SyncService(
         lastModified = lastModified
     )
 
-    private fun fruitylicious.entity.Ingredient.toResponse() = IngredientResponse(
+    private fun fruitylicious.entity.IngredientEntity.toResponse() = IngredientResponse(
         ingredientId = ingredientId,
         image = image,
         ingredientName = ingredientName,
@@ -364,7 +364,7 @@ class SyncService(
         lastModified = lastModified
     )
 
-    private fun fruitylicious.entity.ProductRecipe.toResponse() = RecipeResponse(
+    private fun fruitylicious.entity.ProductRecipeEntity.toResponse() = RecipeResponse(
         recipeId = recipeId,
         productId = product.productId,
         ingredientId = ingredient.ingredientId,

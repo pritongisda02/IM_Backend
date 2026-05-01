@@ -1,6 +1,6 @@
 package fruitylicious.repository
 
-import fruitylicious.entity.Transaction
+import fruitylicious.entity.TransactionEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -9,13 +9,13 @@ import java.math.BigDecimal
 import java.time.Instant
 
 @Repository
-interface TransactionRepository : JpaRepository<Transaction, Long> {
+interface TransactionRepository : JpaRepository<TransactionEntity, Long> {
 
     fun findAllByBranchBranchIdAndDateTimeBetween(
         branchId: Long,
         from: Instant,
         to: Instant
-    ): List<Transaction>
+    ): List<TransactionEntity>
 
     @Query("""
         SELECT COALESCE(SUM(t.totalAmount), 0)
