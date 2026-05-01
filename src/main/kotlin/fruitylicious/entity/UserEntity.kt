@@ -8,28 +8,28 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(
-    name = "products",
+    name = "users",
     indexes = [
-        Index(name = "idx_products_name", columnList = "product_name"),
-        Index(name = "idx_products_is_addon", columnList = "is_addon")
+        Index(name = "idx_users_username", columnList = "username", unique = true),
+        Index(name = "idx_users_role", columnList = "role")
     ]
 )
-open class ProductEntity(
+open class UserEntity(
     @Id
-    @Column(name = "product_id")
-    open var productId: Int = 0,
+    @Column(name = "user_id")
+    open var userId: Int = 0,
 
-    @Column(name = "image")
-    open var image: String? = null,
+    @Column(name = "name", nullable = false)
+    open var name: String = "",
 
-    @Column(name = "product_name", nullable = false)
-    open var productName: String = "",
+    @Column(name = "role", nullable = false)
+    open var role: String = "",
 
-    @Column(name = "is_addon", nullable = false)
-    open var isAddon: Boolean = false,
+    @Column(name = "username", nullable = false, unique = true)
+    open var username: String = "",
 
-    @Column(name = "price", nullable = false)
-    open var price: Double = 0.0,
+    @Column(name = "password", nullable = false)
+    open var password: String = "",
 
     @Column(name = "last_modified", nullable = false)
     open var lastModified: Long = 0L,

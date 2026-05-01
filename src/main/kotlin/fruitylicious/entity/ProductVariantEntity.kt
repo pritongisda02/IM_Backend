@@ -5,37 +5,34 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 
 @Entity
 @Table(
-    name = "ingredients",
+    name = "product_variants",
     indexes = [
-        Index(name = "idx_ingredients_name", columnList = "ingredient_name"),
-        Index(name = "idx_ingredients_packaging", columnList = "is_packaging")
+        Index(name = "idx_product_variants_product", columnList = "product_id")
+    ],
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "uk_product_variant_size",
+            columnNames = ["product_id", "size_name"]
+        )
     ]
 )
-open class IngredientEntity(
+open class ProductVariantEntity(
     @Id
-    @Column(name = "ingredient_id")
-    open var ingredientId: Int = 0,
+    @Column(name = "variant_id")
+    open var variantId: Int = 0,
 
-    @Column(name = "image")
-    open var image: String? = null,
+    @Column(name = "product_id", nullable = false)
+    open var productId: Int = 0,
 
-    @Column(name = "ingredient_name", nullable = false)
-    open var ingredientName: String = "",
+    @Column(name = "size_name", nullable = false)
+    open var sizeName: String = "",
 
-    @Column(name = "unit_type", nullable = false)
-    open var unitType: String = "",
-
-    @Column(name = "estimated_weight_per_unit", nullable = false)
-    open var estimatedWeightPerUnit: Double = 0.0,
-
-    @Column(name = "is_packaging", nullable = false)
-    open var isPackaging: Boolean = false,
-
-    @Column(name = "low_stock_threshold", nullable = false)
-    open var lowStockThreshold: Double = 0.0,
+    @Column(name = "price", nullable = false)
+    open var price: Double = 0.0,
 
     @Column(name = "last_modified", nullable = false)
     open var lastModified: Long = 0L,

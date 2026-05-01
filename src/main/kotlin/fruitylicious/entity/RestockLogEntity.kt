@@ -8,18 +8,18 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(
-    name = "inventory_adjustments",
+    name = "restock_logs",
     indexes = [
-        Index(name = "idx_adjustments_ingredient", columnList = "ingredient_id"),
-        Index(name = "idx_adjustments_branch", columnList = "branch_id"),
-        Index(name = "idx_adjustments_user", columnList = "user_id"),
-        Index(name = "idx_adjustments_date", columnList = "date_time")
+        Index(name = "idx_restock_ingredient", columnList = "ingredient_id"),
+        Index(name = "idx_restock_branch", columnList = "branch_id"),
+        Index(name = "idx_restock_user", columnList = "user_id"),
+        Index(name = "idx_restock_date", columnList = "date_time")
     ]
 )
-open class InventoryAdjustmentEntity(
+open class RestockLogEntity(
     @Id
-    @Column(name = "adjustment_id", length = 64)
-    open var adjustmentId: String = "",
+    @Column(name = "restock_id", length = 64)
+    open var restockId: String = "",
 
     @Column(name = "ingredient_id", nullable = false)
     open var ingredientId: Int = 0,
@@ -30,11 +30,11 @@ open class InventoryAdjustmentEntity(
     @Column(name = "user_id", nullable = false)
     open var userId: Int = 0,
 
-    @Column(name = "adjustment_amount", nullable = false)
-    open var adjustmentAmount: Double = 0.0,
+    @Column(name = "quantity_added", nullable = false)
+    open var quantityAdded: Double = 0.0,
 
-    @Column(name = "reason", nullable = false)
-    open var reason: String = "",
+    @Column(name = "supplier", nullable = false)
+    open var supplier: String = "",
 
     @Column(name = "date_time", nullable = false)
     open var dateTime: Long = 0L,
