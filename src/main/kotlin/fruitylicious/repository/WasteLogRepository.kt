@@ -2,8 +2,15 @@ package fruitylicious.repository
 
 import fruitylicious.entity.WasteLog
 import org.springframework.data.jpa.repository.JpaRepository
-import java.time.LocalDateTime
+import org.springframework.stereotype.Repository
+import java.time.Instant
 
+@Repository
 interface WasteLogRepository : JpaRepository<WasteLog, Long> {
-    fun findByDateTimeBetween(start: LocalDateTime, end: LocalDateTime): List<WasteLog>
+
+    fun findAllByBranchBranchIdAndDateTimeBetween(
+        branchId: Long,
+        from: Instant,
+        to: Instant
+    ): List<WasteLog>
 }

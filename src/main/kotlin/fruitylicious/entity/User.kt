@@ -1,27 +1,27 @@
 package fruitylicious.entity
-import jakarta.persistence.*
+
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 
 @Entity
-@Table(name = "USERS")
-class User(
+@Table(name = "users")
+class User : BaseEntity() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
-    @SequenceGenerator(name = "user_seq", sequenceName = "USER_SEQ", allocationSize = 1)
-    @Column(name = "USER_ID")
-    var id: Long = 0,
+    @Column(name = "user_id", nullable = false)
+    var userId: Long = 0
 
-    var name: String,
+    @Column(name = "name", nullable = false, length = 100)
+    var name: String = ""
 
-    @Column(unique = true)
-    var username: String,
+    @Column(name = "role", nullable = false, length = 20)
+    var role: String = ""
 
-    var password: String,
+    @Column(name = "username", nullable = false, unique = true, length = 50)
+    var username: String = ""
 
-    @Enumerated(EnumType.STRING)
-    var role: UserRole
-)
-
-enum class UserRole {
-    ADMIN, STAFF
+    @Column(name = "password", nullable = false, length = 255)
+    var password: String = ""
 }

@@ -1,37 +1,40 @@
 package fruitylicious.entity
 
-import jakarta.persistence.*
-import java.time.LocalDateTime
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
+import java.math.BigDecimal
+import java.time.Instant
 
 @Entity
-@Table(name = "TRANSACTIONS")
-class Transaction(
+@Table(name = "transactions")
+class Transaction : BaseEntity() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_seq")
-    @SequenceGenerator(name = "transaction_seq", sequenceName = "TRANSACTION_SEQ", allocationSize = 1)
-    @Column(name = "TRANSACTION_ID")
-    val id: Long = 0,
+    @Column(name = "transaction_id", nullable = false)
+    var transactionId: Long = 0
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    val user: User,
+    @JoinColumn(name = "user_id", nullable = false)
+    var user: User = User()
 
-    val totalAmount: Double,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id", nullable = false)
+    var branch: Branch = Branch()
 
-    @Enumerated(EnumType.STRING)
-    val paymentType: PaymentType,
+    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
+    var totalAmount: BigDecimal = BigDecimal.ZERO
 
-    val dateTime: LocalDateTime,
+    @Column(name = "payment_type", nullable = false, length = 20)
+    var paymentType: String = ""
 
-    @Enumerated(EnumType.STRING)
-    val status: TransactionStatus
-)
+    @Column(name = "date_time", nullable = false)
+    var dateTime: Instant = Instant.now()
 
-enum class PaymentType {
-    CASH, ONLINE
-}
-
-enum class TransactionStatus {
-    COMPLETED, VOID
+    @Column(name = "status", nullable = false, length = 20)
+    var status: String = "completed"
 }

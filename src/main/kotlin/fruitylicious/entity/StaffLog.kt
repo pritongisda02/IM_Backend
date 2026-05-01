@@ -10,8 +10,8 @@ import jakarta.persistence.Table
 import java.time.Instant
 
 @Entity
-@Table(name = "audit_logs")
-class AuditLog : BaseEntity() {
+@Table(name = "staff_logs")
+class StaffLog : BaseEntity() {
 
     @Id
     @Column(name = "log_id", nullable = false)
@@ -25,12 +25,12 @@ class AuditLog : BaseEntity() {
     @JoinColumn(name = "branch_id", nullable = false)
     var branch: Branch = Branch()
 
-    @Column(name = "action", nullable = false, length = 255)
-    var action: String = ""
+    @Column(name = "image", length = 500)
+    var image: String? = null
 
-    @Column(name = "table_affected", nullable = false, length = 100)
-    var tableAffected: String = ""
+    @Column(name = "clock_in", nullable = false)
+    var clockIn: Instant = Instant.now()
 
-    @Column(name = "timestamp", nullable = false)
-    var timestamp: Instant = Instant.now()
+    @Column(name = "clock_out")
+    var clockOut: Instant? = null
 }

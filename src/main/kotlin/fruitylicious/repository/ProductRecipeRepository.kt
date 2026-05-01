@@ -1,7 +1,14 @@
 package fruitylicious.repository
 
-import fruitylicious.entity.Product
+import fruitylicious.entity.ProductRecipe
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
+import java.time.Instant
 
-interface ProductRecipeRepository : JpaRepository<Product, Long> {
+@Repository
+interface ProductRecipeRepository : JpaRepository<ProductRecipe, Long> {
+
+    fun findAllByProductProductId(productId: Long): List<ProductRecipe>
+
+    fun findAllByLastModifiedAfter(since: Instant): List<ProductRecipe>
 }
