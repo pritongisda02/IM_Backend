@@ -10,13 +10,13 @@ import javax.sql.DataSource
 @Configuration
 class DataSourceConfig {
 
-    @Value("\${datasource.url}")
+    @Value("\${spring.datasource.url}")
     private lateinit var url: String
 
-    @Value("\${datasource.username}")
+    @Value("\${spring.datasource.username}")
     private lateinit var username: String
 
-    @Value("\${datasource.password}")
+    @Value("\${spring.datasource.password}")
     private lateinit var password: String
 
     @Primary

@@ -10,8 +10,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
@@ -31,7 +29,7 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers("/api/auth/login").permitAll()
-                    .requestMatchers("/api/sync/**").permitAll() // guarded by ApiKeyAuthFilter
+                    .requestMatchers("/api/sync/**").permitAll()
                     .requestMatchers("/api/reports/**").hasRole("ADMIN")
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     .anyRequest().authenticated()
@@ -41,9 +39,6 @@ class SecurityConfig(
 
         return http.build()
     }
-
-    @Bean
-    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
     fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager =
