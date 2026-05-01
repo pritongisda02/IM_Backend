@@ -336,7 +336,7 @@ class SyncService(
         lastModified = lastModified
     )
 
-    private fun fruitylicious.entity.User.toResponse() = UserResponse(
+    private fun fruitylicious.entity.UserEntity.toResponse() = UserResponse(
         userId = userId,
         name = name,
         role = role,

@@ -2,7 +2,7 @@ package fruitylicious.service
 
 import fruitylicious.dto.*
 import fruitylicious.entity.Branch
-import fruitylicious.entity.User
+import fruitylicious.entity.UserEntity
 import fruitylicious.repository.BranchRepository
 import fruitylicious.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -57,7 +57,7 @@ class AdminService(
         val rawPassword = request.password
             ?: throw IllegalArgumentException("Password is required when creating a user.")
 
-        val entity = User().apply {
+        val entity = UserEntity().apply {
             userId = request.userId
             name = request.name
             role = request.role
@@ -103,7 +103,7 @@ class AdminService(
         lastModified = lastModified
     )
 
-    private fun User.toResponse() = UserResponse(
+    private fun UserEntity.toResponse() = UserResponse(
         userId = userId,
         name = name,
         role = role,

@@ -28,7 +28,7 @@ class RestockLog : BaseEntity() {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    var user: User = User()
+    var user: UserEntity = UserEntity()
 
     @Column(name = "quantity_added", nullable = false, precision = 10, scale = 4)
     var quantityAdded: BigDecimal = BigDecimal.ZERO

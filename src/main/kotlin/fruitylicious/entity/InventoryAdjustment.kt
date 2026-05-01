@@ -28,7 +28,7 @@ class InventoryAdjustment : BaseEntity() {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    var user: User = User()
+    var user: UserEntity = UserEntity()
 
     @Column(name = "adjustment_amount", nullable = false, precision = 10, scale = 4)
     var adjustmentAmount: BigDecimal = BigDecimal.ZERO

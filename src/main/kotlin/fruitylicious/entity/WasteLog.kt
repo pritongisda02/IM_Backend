@@ -28,7 +28,7 @@ class WasteLog : BaseEntity() {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    var user: User = User()
+    var user: UserEntity = UserEntity()
 
     @Column(name = "quantity", nullable = false, precision = 10, scale = 4)
     var quantity: BigDecimal = BigDecimal.ZERO
