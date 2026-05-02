@@ -4,6 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Index
+import jakarta.persistence.Lob
 import jakarta.persistence.Table
 
 @Entity
@@ -27,7 +28,8 @@ open class StaffLogEntity(
     @Column(name = "branch_id", nullable = false)
     open var branchId: Int = 0,
 
-    @Column(name = "image")
+    @Lob
+    @Column(name = "image", columnDefinition = "CLOB")
     open var image: String? = null,
 
     @Column(name = "clock_in", nullable = false)

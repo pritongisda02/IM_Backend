@@ -4,6 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Index
+import jakarta.persistence.Lob
 import jakarta.persistence.Table
 
 @Entity
@@ -33,7 +34,8 @@ open class WasteLogEntity(
     @Column(name = "quantity", nullable = false)
     open var quantity: Double = 0.0,
 
-    @Column(name = "image")
+    @Lob
+    @Column(name = "image", columnDefinition = "CLOB")
     open var image: String? = null,
 
     @Column(name = "reason", nullable = false)

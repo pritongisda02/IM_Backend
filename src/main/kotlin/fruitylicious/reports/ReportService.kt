@@ -40,6 +40,20 @@ class ReportsService(
         val totalSales = summary.totalSales ?: 0.0
         val totalTransactions = summary.totalTransactions?.toInt() ?: 0
 
+        val paymentBreakdown = transactionRepository.getPaymentBreakdown(
+            branchId = branchId,
+            from = from,
+            to = to
+        )
+
+        val cashTotal = paymentBreakdown
+            .firstOrNull { it.paymentType.equals("Cash", ignoreCase = true) }
+            ?.totalAmount ?: 0.0
+
+        val gcashTotal = paymentBreakdown
+            .firstOrNull { it.paymentType.equals("Gcash", ignoreCase = true) }
+            ?.totalAmount ?: 0.0
+
         val items = transactionItemRepository.getSalesItems(
             branchId = branchId,
             from = from,
@@ -65,6 +79,9 @@ class ReportsService(
             } else {
                 0.0
             },
+            previousSales = 0.0,
+            cashTotal = cashTotal,
+            gcashTotal = gcashTotal,
             items = items
         )
     }
@@ -114,7 +131,8 @@ class ReportsService(
                 reason = it.reason,
                 userId = it.userId,
                 userName = it.userName,
-                dateTime = it.dateTime
+                dateTime = it.dateTime,
+                image = it.image
             )
         }
 
@@ -193,7 +211,9 @@ class ReportsService(
                         productId = line.productId,
                         productName = line.productName,
                         quantity = line.quantity,
-                        subtotal = line.subtotal
+                        subtotal = line.subtotal,
+                        sizeName = line.sizeName,
+                        addons = emptyList()
                     )
                 }
 
@@ -201,6 +221,7 @@ class ReportsService(
                 transactionId = transaction.transactionId,
                 userId = transaction.userId,
                 userName = transaction.userName,
+                branchId = transaction.branchId,
                 totalAmount = transaction.totalAmount,
                 paymentType = transaction.paymentType,
                 dateTime = transaction.dateTime,
@@ -212,6 +233,60 @@ class ReportsService(
         return TransactionReportDto(
             branchId = branchId,
             branchName = branch?.branchName ?: "Branch $branchId",
+            from = from,
+            to = to,
+            transactions = rows
+        )
+    }
+
+    fun combinedTransactionReport(
+        from: Long,
+        to: Long
+    ): TransactionReportDto {
+        val transactions = transactionRepository.getAllTransactionReportRows(
+            from = from,
+            to = to
+        )
+
+        val transactionIds = transactions.map { it.transactionId }
+
+        val linesByTransaction = if (transactionIds.isEmpty()) {
+            emptyMap()
+        } else {
+            transactionItemRepository.getTransactionLines(transactionIds)
+                .groupBy { it.transactionId }
+        }
+
+        val rows = transactions.map { transaction ->
+            val lines = linesByTransaction[transaction.transactionId]
+                .orEmpty()
+                .map { line ->
+                    TransactionLineReportDto(
+                        productId = line.productId,
+                        productName = line.productName,
+                        quantity = line.quantity,
+                        subtotal = line.subtotal,
+                        sizeName = line.sizeName,
+                        addons = emptyList()
+                    )
+                }
+
+            TransactionReportItemDto(
+                transactionId = transaction.transactionId,
+                userId = transaction.userId,
+                userName = transaction.userName,
+                branchId = transaction.branchId,
+                totalAmount = transaction.totalAmount,
+                paymentType = transaction.paymentType,
+                dateTime = transaction.dateTime,
+                status = transaction.status,
+                items = lines
+            )
+        }
+
+        return TransactionReportDto(
+            branchId = null,
+            branchName = "All Branches",
             from = from,
             to = to,
             transactions = rows

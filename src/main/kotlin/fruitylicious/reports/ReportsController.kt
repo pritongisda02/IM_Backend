@@ -126,4 +126,17 @@ class ReportsController(
             )
         )
     }
+
+    @GetMapping("/transactions/combined")
+    fun getCombinedTransactionReport(
+        @RequestParam from: Long,
+        @RequestParam to: Long
+    ): ResponseEntity<TransactionReportDto> {
+        return ResponseEntity.ok(
+            reportsService.combinedTransactionReport(
+                from = from,
+                to = to
+            )
+        )
+    }
 }

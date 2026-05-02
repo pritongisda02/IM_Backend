@@ -10,6 +10,7 @@ interface WasteReportRow {
     val userId: Int
     val userName: String
     val dateTime: Long
+    val image: String?
 }
 
 interface RestockReportRow {

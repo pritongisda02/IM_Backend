@@ -44,10 +44,7 @@ class SecurityConfig(
 
                 it.requestMatchers("/api/sync/**").permitAll()
 
-                it.requestMatchers("/api/reports/**").hasAnyRole(
-                    "ADMIN",
-                    "OWNER"
-                )
+                it.requestMatchers("/api/reports/**").permitAll()
 
                 it.anyRequest().authenticated()
             }

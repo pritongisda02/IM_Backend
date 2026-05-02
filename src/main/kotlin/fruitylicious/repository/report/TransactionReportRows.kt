@@ -4,6 +4,7 @@ interface TransactionReportRow {
     val transactionId: String
     val userId: Int
     val userName: String
+    val branchId: Int
     val totalAmount: Double
     val paymentType: String
     val dateTime: Long
@@ -16,4 +17,5 @@ interface TransactionLineRow {
     val productName: String
     val quantity: Int
     val subtotal: Double
+    val sizeName: String?
 }

@@ -8,6 +8,9 @@ data class SalesReportDto(
     val totalSales: Double,
     val totalTransactions: Int,
     val averageTransactionValue: Double,
+    val previousSales: Double = 0.0,
+    val cashTotal: Double = 0.0,
+    val gcashTotal: Double = 0.0,
     val items: List<SalesReportItemDto>
 )
 
@@ -52,7 +55,8 @@ data class WasteReportItemDto(
     val reason: String,
     val userId: Int,
     val userName: String,
-    val dateTime: Long
+    val dateTime: Long,
+    val image: String? = null
 )
 
 data class RestockReportDto(
@@ -88,6 +92,7 @@ data class TransactionReportItemDto(
     val transactionId: String,
     val userId: Int,
     val userName: String,
+    val branchId: Int,
     val totalAmount: Double,
     val paymentType: String,
     val dateTime: Long,
@@ -99,7 +104,9 @@ data class TransactionLineReportDto(
     val productId: Int,
     val productName: String,
     val quantity: Int,
-    val subtotal: Double
+    val subtotal: Double,
+    val sizeName: String? = null,
+    val addons: List<String> = emptyList()
 )
 
 data class StaffLogReportDto(

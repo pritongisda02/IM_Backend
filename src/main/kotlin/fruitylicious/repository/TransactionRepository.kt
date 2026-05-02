@@ -51,23 +51,46 @@ interface TransactionRepository : JpaRepository<TransactionEntity, String> {
 
     @Query(
         """
-        SELECT
-            t.transactionId AS transactionId,
-            t.userId AS userId,
-            u.name AS userName,
-            t.totalAmount AS totalAmount,
-            t.paymentType AS paymentType,
-            t.dateTime AS dateTime,
-            t.status AS status
-        FROM TransactionEntity t
-        JOIN UserEntity u ON t.userId = u.userId
-        WHERE t.branchId = :branchId
-        AND t.dateTime BETWEEN :from AND :to
-        ORDER BY t.dateTime DESC
-        """
+    SELECT
+        t.transactionId AS transactionId,
+        t.userId AS userId,
+        u.name AS userName,
+        t.branchId AS branchId,
+        t.totalAmount AS totalAmount,
+        t.paymentType AS paymentType,
+        t.dateTime AS dateTime,
+        t.status AS status
+    FROM TransactionEntity t
+    JOIN UserEntity u ON t.userId = u.userId
+    WHERE t.branchId = :branchId
+    AND t.dateTime BETWEEN :from AND :to
+    ORDER BY t.dateTime DESC
+    """
     )
     fun getTransactionReportRows(
         @Param("branchId") branchId: Int,
+        @Param("from") from: Long,
+        @Param("to") to: Long
+    ): List<TransactionReportRow>
+
+    @Query(
+        """
+    SELECT
+        t.transactionId AS transactionId,
+        t.userId AS userId,
+        u.name AS userName,
+        t.branchId AS branchId,
+        t.totalAmount AS totalAmount,
+        t.paymentType AS paymentType,
+        t.dateTime AS dateTime,
+        t.status AS status
+    FROM TransactionEntity t
+    JOIN UserEntity u ON t.userId = u.userId
+    WHERE t.dateTime BETWEEN :from AND :to
+    ORDER BY t.dateTime DESC
+    """
+    )
+    fun getAllTransactionReportRows(
         @Param("from") from: Long,
         @Param("to") to: Long
     ): List<TransactionReportRow>

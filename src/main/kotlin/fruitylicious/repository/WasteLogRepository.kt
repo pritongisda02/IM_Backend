@@ -20,7 +20,8 @@ interface WasteLogRepository : JpaRepository<WasteLogEntity, String> {
             w.reason AS reason,
             w.userId AS userId,
             u.name AS userName,
-            w.dateTime AS dateTime
+            w.dateTime AS dateTime,
+            w.image AS image
         FROM WasteLogEntity w
         JOIN IngredientEntity i ON w.ingredientId = i.ingredientId
         JOIN UserEntity u ON w.userId = u.userId
