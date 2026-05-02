@@ -47,6 +47,24 @@ class SyncService(
     ): PushResponse {
         val serverTime = System.currentTimeMillis()
 
+        println("========== SYNC PUSH START ==========")
+        println("SYNC PUSH requestingBranchId=$requestingBranchId")
+        println("SYNC PUSH inventory count=${request.inventory.size}")
+        println("SYNC PUSH restockLogs count=${request.restockLogs.size}")
+
+        request.inventory.forEach {
+            println(
+                "SYNC PUSH inventory item ingredientId=${it.ingredientId}, branchId=${it.branchId}, stock=${it.currentStock}, lastModified=${it.lastModified}"
+            )
+        }
+
+        request.restockLogs.forEach {
+            println(
+                "SYNC PUSH restock item restockId=${it.restockId}, ingredientId=${it.ingredientId}, branchId=${it.branchId}, qty=${it.quantityAdded}"
+            )
+        }
+        println("========== SYNC PUSH END HEADER ==========")
+
         val incomingTransactionsById = request.transactions.associateBy {
             it.transactionId
         }

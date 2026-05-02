@@ -1,10 +1,12 @@
 package fruitylicious.entity
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.Column
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.Index
 import jakarta.persistence.Table
+import jakarta.persistence.Transient
 
 @Entity
 @Table(
@@ -30,9 +32,22 @@ open class InventoryEntity(
     @Column(name = "synced_at")
     open var syncedAt: Long? = null
 ) {
-    val ingredientId: Int
-        get() = id.ingredientId
 
-    val branchId: Int
+    @get:Transient
+    @get:JsonProperty("ingredientId")
+    @set:JsonProperty("ingredientId")
+    open var ingredientId: Int
+        get() = id.ingredientId
+        set(value) {
+            id.ingredientId = value
+        }
+
+    @get:Transient
+    @get:JsonProperty("branchId")
+    @set:JsonProperty("branchId")
+    open var branchId: Int
         get() = id.branchId
+        set(value) {
+            id.branchId = value
+        }
 }
