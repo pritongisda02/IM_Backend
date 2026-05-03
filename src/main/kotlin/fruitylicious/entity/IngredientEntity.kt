@@ -17,14 +17,14 @@ import jakarta.persistence.Table
 )
 open class IngredientEntity(
     @Id
-    @Column(name = "ingredient_id")
+    @Column(name = "ingredient_id", nullable = false)
     open var ingredientId: Int = 0,
 
     @Lob
     @Column(name = "image", columnDefinition = "CLOB")
     open var image: String? = null,
 
-    @Column(name = "ingredient_name", nullable = false)
+    @Column(name = "ingredient_name", nullable = false, unique = true)
     open var ingredientName: String = "",
 
     @Column(name = "unit_type", nullable = false)
@@ -39,6 +39,12 @@ open class IngredientEntity(
     @Column(name = "low_stock_threshold", nullable = false)
     open var lowStockThreshold: Double = 0.0,
 
+    @Column(name = "is_deleted", nullable = false)
+    open var isDeleted: Boolean = false,
+
+    @Column(name = "deleted_at")
+    open var deletedAt: Long? = null,
+
     @Column(name = "last_modified", nullable = false)
     open var lastModified: Long = 0L,
 
@@ -46,11 +52,5 @@ open class IngredientEntity(
     open var isSynced: Boolean = true,
 
     @Column(name = "synced_at")
-    open var syncedAt: Long? = null,
-
-    @Column(name = "is_deleted", nullable = false)
-    open var isDeleted: Boolean = false,
-
-    @Column(name = "deleted_at")
-    open var deletedAt: Long? = null
+    open var syncedAt: Long? = null
 )

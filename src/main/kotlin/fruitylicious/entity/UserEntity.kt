@@ -16,20 +16,26 @@ import jakarta.persistence.Table
 )
 open class UserEntity(
     @Id
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     open var userId: Int = 0,
 
     @Column(name = "name", nullable = false)
     open var name: String = "",
 
     @Column(name = "role", nullable = false)
-    open var role: String = "",
+    open var role: String = "staff",
 
     @Column(name = "username", nullable = false, unique = true)
     open var username: String = "",
 
     @Column(name = "password", nullable = false)
     open var password: String = "",
+
+    @Column(name = "is_deleted", nullable = false)
+    open var isDeleted: Boolean = false,
+
+    @Column(name = "deleted_at")
+    open var deletedAt: Long? = null,
 
     @Column(name = "last_modified", nullable = false)
     open var lastModified: Long = 0L,
@@ -38,11 +44,5 @@ open class UserEntity(
     open var isSynced: Boolean = true,
 
     @Column(name = "synced_at")
-    open var syncedAt: Long? = null,
-
-    @Column(name = "is_deleted", nullable = false)
-    open var isDeleted: Boolean = false,
-
-    @Column(name = "deleted_at")
-    open var deletedAt: Long? = null
+    open var syncedAt: Long? = null
 )

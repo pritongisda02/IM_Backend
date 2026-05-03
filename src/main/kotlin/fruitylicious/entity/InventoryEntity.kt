@@ -1,10 +1,15 @@
 package fruitylicious.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.Column
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.ForeignKey
 import jakarta.persistence.Index
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.Transient
 
@@ -32,7 +37,6 @@ open class InventoryEntity(
     @Column(name = "synced_at")
     open var syncedAt: Long? = null
 ) {
-
     @get:Transient
     @get:JsonProperty("ingredientId")
     @set:JsonProperty("ingredientId")
@@ -50,4 +54,26 @@ open class InventoryEntity(
         set(value) {
             id.branchId = value
         }
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+        name = "ingredient_id",
+        referencedColumnName = "ingredient_id",
+        insertable = false,
+        updatable = false,
+        foreignKey = ForeignKey(name = "fk_inventory_ingredient")
+    )
+    open var ingredient: IngredientEntity? = null
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+        name = "branch_id",
+        referencedColumnName = "branch_id",
+        insertable = false,
+        updatable = false,
+        foreignKey = ForeignKey(name = "fk_inventory_branch")
+    )
+    open var branch: BranchEntity? = null
 }

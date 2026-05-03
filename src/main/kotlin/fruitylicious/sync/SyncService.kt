@@ -47,24 +47,6 @@ class SyncService(
     ): PushResponse {
         val serverTime = System.currentTimeMillis()
 
-        println("========== SYNC PUSH START ==========")
-        println("SYNC PUSH requestingBranchId=$requestingBranchId")
-        println("SYNC PUSH inventory count=${request.inventory.size}")
-        println("SYNC PUSH restockLogs count=${request.restockLogs.size}")
-
-        request.inventory.forEach {
-            println(
-                "SYNC PUSH inventory item ingredientId=${it.ingredientId}, branchId=${it.branchId}, stock=${it.currentStock}, lastModified=${it.lastModified}"
-            )
-        }
-
-        request.restockLogs.forEach {
-            println(
-                "SYNC PUSH restock item restockId=${it.restockId}, ingredientId=${it.ingredientId}, branchId=${it.branchId}, qty=${it.quantityAdded}"
-            )
-        }
-        println("========== SYNC PUSH END HEADER ==========")
-
         val incomingTransactionsById = request.transactions.associateBy {
             it.transactionId
         }
@@ -78,9 +60,15 @@ class SyncService(
                 syncRecord(
                     recordId = item.branchId.toString(),
                     incoming = item.copyForServer(serverTime),
-                    current = { branchRepository.findById(item.branchId).orElse(null) },
-                    save = { branchRepository.save(it) },
-                    lastModified = { it.lastModified }
+                    current = {
+                        branchRepository.findById(item.branchId).orElse(null)
+                    },
+                    save = {
+                        branchRepository.save(it)
+                    },
+                    lastModified = {
+                        it.lastModified
+                    }
                 )
             },
 
@@ -88,9 +76,15 @@ class SyncService(
                 syncRecord(
                     recordId = item.userId.toString(),
                     incoming = item.copyForServer(serverTime),
-                    current = { userRepository.findById(item.userId).orElse(null) },
-                    save = { userRepository.save(it) },
-                    lastModified = { it.lastModified }
+                    current = {
+                        userRepository.findById(item.userId).orElse(null)
+                    },
+                    save = {
+                        userRepository.save(it)
+                    },
+                    lastModified = {
+                        it.lastModified
+                    }
                 )
             },
 
@@ -98,19 +92,15 @@ class SyncService(
                 syncRecord(
                     recordId = item.productId.toString(),
                     incoming = item.copyForServer(serverTime),
-                    current = { productRepository.findById(item.productId).orElse(null) },
-                    save = { productRepository.save(it) },
-                    lastModified = { it.lastModified }
-                )
-            },
-
-            productVariants = request.productVariants.map { item ->
-                syncRecord(
-                    recordId = item.variantId.toString(),
-                    incoming = item.copyForServer(serverTime),
-                    current = { productVariantRepository.findById(item.variantId).orElse(null) },
-                    save = { productVariantRepository.save(it) },
-                    lastModified = { it.lastModified }
+                    current = {
+                        productRepository.findById(item.productId).orElse(null)
+                    },
+                    save = {
+                        productRepository.save(it)
+                    },
+                    lastModified = {
+                        it.lastModified
+                    }
                 )
             },
 
@@ -118,9 +108,31 @@ class SyncService(
                 syncRecord(
                     recordId = item.ingredientId.toString(),
                     incoming = item.copyForServer(serverTime),
-                    current = { ingredientRepository.findById(item.ingredientId).orElse(null) },
-                    save = { ingredientRepository.save(it) },
-                    lastModified = { it.lastModified }
+                    current = {
+                        ingredientRepository.findById(item.ingredientId).orElse(null)
+                    },
+                    save = {
+                        ingredientRepository.save(it)
+                    },
+                    lastModified = {
+                        it.lastModified
+                    }
+                )
+            },
+
+            productVariants = request.productVariants.map { item ->
+                syncRecord(
+                    recordId = item.variantId.toString(),
+                    incoming = item.copyForServer(serverTime),
+                    current = {
+                        productVariantRepository.findById(item.variantId).orElse(null)
+                    },
+                    save = {
+                        productVariantRepository.save(it)
+                    },
+                    lastModified = {
+                        it.lastModified
+                    }
                 )
             },
 
@@ -128,9 +140,15 @@ class SyncService(
                 syncRecord(
                     recordId = item.recipeId.toString(),
                     incoming = item.copyForServer(serverTime),
-                    current = { productRecipeRepository.findById(item.recipeId).orElse(null) },
-                    save = { productRecipeRepository.save(it) },
-                    lastModified = { it.lastModified }
+                    current = {
+                        productRecipeRepository.findById(item.recipeId).orElse(null)
+                    },
+                    save = {
+                        productRecipeRepository.save(it)
+                    },
+                    lastModified = {
+                        it.lastModified
+                    }
                 )
             },
 
@@ -148,51 +166,15 @@ class SyncService(
                     syncRecord(
                         recordId = recordId,
                         incoming = item.copyForServer(serverTime),
-                        current = { inventoryRepository.findById(id).orElse(null) },
-                        save = { inventoryRepository.save(it) },
-                        lastModified = { it.lastModified }
-                    )
-                }
-            },
-
-            restockLogs = request.restockLogs.map { item ->
-                if (item.branchId != requestingBranchId) {
-                    branchRejected(item.restockId)
-                } else {
-                    syncRecord(
-                        recordId = item.restockId,
-                        incoming = item.copyForServer(serverTime),
-                        current = { restockLogRepository.findById(item.restockId).orElse(null) },
-                        save = { restockLogRepository.save(it) },
-                        lastModified = { it.lastModified }
-                    )
-                }
-            },
-
-            inventoryAdjustments = request.inventoryAdjustments.map { item ->
-                if (item.branchId != requestingBranchId) {
-                    branchRejected(item.adjustmentId)
-                } else {
-                    syncRecord(
-                        recordId = item.adjustmentId,
-                        incoming = item.copyForServer(serverTime),
-                        current = { inventoryAdjustmentRepository.findById(item.adjustmentId).orElse(null) },
-                        save = { inventoryAdjustmentRepository.save(it) },
-                        lastModified = { it.lastModified }
-                    )
-                }
-            },
-
-            wasteLogs = request.wasteLogs.map { item ->
-                if (item.branchId != requestingBranchId) {
-                    branchRejected(item.wasteId)
-                } else {
-                    syncRecord(
-                        recordId = item.wasteId,
-                        incoming = item.copyForServer(serverTime),
-                        current = { wasteLogRepository.findById(item.wasteId).orElse(null) },
-                        save = { wasteLogRepository.save(it) },
-                        lastModified = { it.lastModified }
+                        current = {
+                            inventoryRepository.findById(id).orElse(null)
+                        },
+                        save = {
+                            inventoryRepository.save(it)
+                        },
+                        lastModified = {
+                            it.lastModified
+                        }
                     )
                 }
             },
@@ -204,9 +186,15 @@ class SyncService(
                     syncRecord(
                         recordId = item.transactionId,
                         incoming = item.copyForServer(serverTime),
-                        current = { transactionRepository.findById(item.transactionId).orElse(null) },
-                        save = { transactionRepository.save(it) },
-                        lastModified = { it.lastModified }
+                        current = {
+                            transactionRepository.findById(item.transactionId).orElse(null)
+                        },
+                        save = {
+                            transactionRepository.save(it)
+                        },
+                        lastModified = {
+                            it.lastModified
+                        }
                     )
                 }
             },
@@ -218,17 +206,29 @@ class SyncService(
                 )
 
                 when {
-                    branchId == null -> parentMissing(item.transactionItemId)
+                    branchId == null -> {
+                        parentMissing(item.transactionItemId)
+                    }
 
-                    branchId != requestingBranchId -> branchRejected(item.transactionItemId)
+                    branchId != requestingBranchId -> {
+                        branchRejected(item.transactionItemId)
+                    }
 
-                    else -> syncRecord(
-                        recordId = item.transactionItemId,
-                        incoming = item.copyForServer(serverTime),
-                        current = { transactionItemRepository.findById(item.transactionItemId).orElse(null) },
-                        save = { transactionItemRepository.save(it) },
-                        lastModified = { it.lastModified }
-                    )
+                    else -> {
+                        syncRecord(
+                            recordId = item.transactionItemId,
+                            incoming = item.copyForServer(serverTime),
+                            current = {
+                                transactionItemRepository.findById(item.transactionItemId).orElse(null)
+                            },
+                            save = {
+                                transactionItemRepository.save(it)
+                            },
+                            lastModified = {
+                                it.lastModified
+                            }
+                        )
+                    }
                 }
             },
 
@@ -244,18 +244,93 @@ class SyncService(
                 }
 
                 when {
-                    parentItem == null -> parentMissing(item.transactionItemAddonId)
+                    parentItem == null -> {
+                        parentMissing(item.transactionItemAddonId)
+                    }
 
-                    branchId == null -> parentMissing(item.transactionItemAddonId)
+                    branchId == null -> {
+                        parentMissing(item.transactionItemAddonId)
+                    }
 
-                    branchId != requestingBranchId -> branchRejected(item.transactionItemAddonId)
+                    branchId != requestingBranchId -> {
+                        branchRejected(item.transactionItemAddonId)
+                    }
 
-                    else -> syncRecord(
-                        recordId = item.transactionItemAddonId,
+                    else -> {
+                        syncRecord(
+                            recordId = item.transactionItemAddonId,
+                            incoming = item.copyForServer(serverTime),
+                            current = {
+                                transactionItemAddonRepository.findById(item.transactionItemAddonId)
+                                    .orElse(null)
+                            },
+                            save = {
+                                transactionItemAddonRepository.save(it)
+                            },
+                            lastModified = {
+                                it.lastModified
+                            }
+                        )
+                    }
+                }
+            },
+
+            restockLogs = request.restockLogs.map { item ->
+                if (item.branchId != requestingBranchId) {
+                    branchRejected(item.restockId)
+                } else {
+                    syncRecord(
+                        recordId = item.restockId,
                         incoming = item.copyForServer(serverTime),
-                        current = { transactionItemAddonRepository.findById(item.transactionItemAddonId).orElse(null) },
-                        save = { transactionItemAddonRepository.save(it) },
-                        lastModified = { it.lastModified }
+                        current = {
+                            restockLogRepository.findById(item.restockId).orElse(null)
+                        },
+                        save = {
+                            restockLogRepository.save(it)
+                        },
+                        lastModified = {
+                            it.lastModified
+                        }
+                    )
+                }
+            },
+
+            inventoryAdjustments = request.inventoryAdjustments.map { item ->
+                if (item.branchId != requestingBranchId) {
+                    branchRejected(item.adjustmentId)
+                } else {
+                    syncRecord(
+                        recordId = item.adjustmentId,
+                        incoming = item.copyForServer(serverTime),
+                        current = {
+                            inventoryAdjustmentRepository.findById(item.adjustmentId).orElse(null)
+                        },
+                        save = {
+                            inventoryAdjustmentRepository.save(it)
+                        },
+                        lastModified = {
+                            it.lastModified
+                        }
+                    )
+                }
+            },
+
+            wasteLogs = request.wasteLogs.map { item ->
+                if (item.branchId != requestingBranchId) {
+                    branchRejected(item.wasteId)
+                } else {
+                    syncRecord(
+                        recordId = item.wasteId,
+                        incoming = item.copyForServer(serverTime),
+                        current = {
+                            wasteLogRepository.findById(item.wasteId).orElse(null)
+                        },
+                        save = {
+                            wasteLogRepository.save(it)
+                        },
+                        lastModified = {
+                            it.lastModified
+                        }
                     )
                 }
             },
@@ -267,9 +342,15 @@ class SyncService(
                     syncRecord(
                         recordId = item.logId,
                         incoming = item.copyForServer(serverTime),
-                        current = { staffLogRepository.findById(item.logId).orElse(null) },
-                        save = { staffLogRepository.save(it) },
-                        lastModified = { it.lastModified }
+                        current = {
+                            staffLogRepository.findById(item.logId).orElse(null)
+                        },
+                        save = {
+                            staffLogRepository.save(it)
+                        },
+                        lastModified = {
+                            it.lastModified
+                        }
                     )
                 }
             },
@@ -281,9 +362,15 @@ class SyncService(
                     syncRecord(
                         recordId = item.logId,
                         incoming = item.copyForServer(serverTime),
-                        current = { auditLogRepository.findById(item.logId).orElse(null) },
-                        save = { auditLogRepository.save(it) },
-                        lastModified = { it.lastModified }
+                        current = {
+                            auditLogRepository.findById(item.logId).orElse(null)
+                        },
+                        save = {
+                            auditLogRepository.save(it)
+                        },
+                        lastModified = {
+                            it.lastModified
+                        }
                     )
                 }
             }
@@ -302,43 +389,52 @@ class SyncService(
 
             branches = branchRepository.findByLastModifiedGreaterThan(since),
             users = userRepository.findByLastModifiedGreaterThan(since),
+
             products = productRepository.findByLastModifiedGreaterThan(since),
-            productVariants = productVariantRepository.findByLastModifiedGreaterThan(since),
             ingredients = ingredientRepository.findByLastModifiedGreaterThan(since),
+            productVariants = productVariantRepository.findByLastModifiedGreaterThan(since),
             productRecipes = productRecipeRepository.findByLastModifiedGreaterThan(since),
 
             inventory = inventoryRepository.findByIdBranchIdAndLastModifiedGreaterThan(
                 branchId = requestingBranchId,
                 lastModified = since
             ),
-            restockLogs = restockLogRepository.findByBranchIdAndLastModifiedGreaterThan(
-                branchId = requestingBranchId,
-                lastModified = since
-            ),
-            inventoryAdjustments = inventoryAdjustmentRepository.findByBranchIdAndLastModifiedGreaterThan(
-                branchId = requestingBranchId,
-                lastModified = since
-            ),
-            wasteLogs = wasteLogRepository.findByBranchIdAndLastModifiedGreaterThan(
-                branchId = requestingBranchId,
-                lastModified = since
-            ),
+
             transactions = transactionRepository.findByBranchIdAndLastModifiedGreaterThan(
                 branchId = requestingBranchId,
                 lastModified = since
             ),
+
             transactionItems = transactionItemRepository.findChangedByBranchSince(
                 branchId = requestingBranchId,
                 since = since
             ),
+
             transactionItemAddons = transactionItemAddonRepository.findChangedByBranchSince(
                 branchId = requestingBranchId,
                 since = since
             ),
+
+            restockLogs = restockLogRepository.findByBranchIdAndLastModifiedGreaterThan(
+                branchId = requestingBranchId,
+                lastModified = since
+            ),
+
+            inventoryAdjustments = inventoryAdjustmentRepository.findByBranchIdAndLastModifiedGreaterThan(
+                branchId = requestingBranchId,
+                lastModified = since
+            ),
+
+            wasteLogs = wasteLogRepository.findByBranchIdAndLastModifiedGreaterThan(
+                branchId = requestingBranchId,
+                lastModified = since
+            ),
+
             staffLogs = staffLogRepository.findByBranchIdAndLastModifiedGreaterThan(
                 branchId = requestingBranchId,
                 lastModified = since
             ),
+
             auditLogs = auditLogRepository.findByBranchIdAndLastModifiedGreaterThan(
                 branchId = requestingBranchId,
                 lastModified = since
@@ -373,7 +469,9 @@ class SyncService(
         }
     }
 
-    private fun branchRejected(recordId: String): SyncRecordResult {
+    private fun branchRejected(
+        recordId: String
+    ): SyncRecordResult {
         return SyncRecordResult(
             recordId = recordId,
             success = false,
@@ -381,7 +479,9 @@ class SyncService(
         )
     }
 
-    private fun parentMissing(recordId: String): SyncRecordResult {
+    private fun parentMissing(
+        recordId: String
+    ): SyncRecordResult {
         return SyncRecordResult(
             recordId = recordId,
             success = false,

@@ -1,9 +1,14 @@
 package fruitylicious.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.ForeignKey
 import jakarta.persistence.Id
 import jakarta.persistence.Index
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
 @Entity
@@ -19,7 +24,7 @@ import jakarta.persistence.Table
 )
 open class AuditLogEntity(
     @Id
-    @Column(name = "log_id", length = 64)
+    @Column(name = "log_id", nullable = false)
     open var logId: String = "",
 
     @Column(name = "user_id", nullable = false)
@@ -45,4 +50,26 @@ open class AuditLogEntity(
 
     @Column(name = "synced_at")
     open var syncedAt: Long? = null
-)
+) {
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+        name = "user_id",
+        referencedColumnName = "user_id",
+        insertable = false,
+        updatable = false,
+        foreignKey = ForeignKey(name = "fk_audit_user")
+    )
+    open var user: UserEntity? = null
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+        name = "branch_id",
+        referencedColumnName = "branch_id",
+        insertable = false,
+        updatable = false,
+        foreignKey = ForeignKey(name = "fk_audit_branch")
+    )
+    open var branch: BranchEntity? = null
+}
