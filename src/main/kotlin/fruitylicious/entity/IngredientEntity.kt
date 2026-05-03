@@ -46,5 +46,11 @@ open class IngredientEntity(
     open var isSynced: Boolean = true,
 
     @Column(name = "synced_at")
-    open var syncedAt: Long? = null
+    open var syncedAt: Long? = null,
+
+    @Column(name = "is_deleted", nullable = false)
+    open var isDeleted: Boolean = false,
+
+    @Column(name = "deleted_at")
+    open var deletedAt: Long? = null
 )
