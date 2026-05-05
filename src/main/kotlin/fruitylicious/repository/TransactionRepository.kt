@@ -94,4 +94,9 @@ interface TransactionRepository : JpaRepository<TransactionEntity, String> {
         @Param("from") from: Long,
         @Param("to") to: Long
     ): List<TransactionReportRow>
+
+    fun countByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): Long
 }

@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface ProductRecipeRepository : JpaRepository<ProductRecipeEntity, Int> {
     fun findByLastModifiedGreaterThan(lastModified: Long): List<ProductRecipeEntity>
+    fun countByLastModifiedGreaterThan(lastModified: Long): Long
 }

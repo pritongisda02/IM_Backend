@@ -40,4 +40,17 @@ class SyncController(
             )
         )
     }
+
+    @GetMapping("/has-updates")
+    fun hasUpdates(
+        @RequestHeader("X-BRANCH-ID") branchId: Int,
+        @RequestParam since: Long
+    ): ResponseEntity<HasUpdatesResponse> {
+        return ResponseEntity.ok(
+            syncService.hasUpdates(
+                requestingBranchId = branchId,
+                since = since
+            )
+        )
+    }
 }

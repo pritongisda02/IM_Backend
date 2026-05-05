@@ -39,4 +39,10 @@ interface RestockLogRepository : JpaRepository<RestockLogEntity, String> {
         branchId: Int,
         lastModified: Long
     ): List<RestockLogEntity>
+
+    fun countByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): Long
+
 }

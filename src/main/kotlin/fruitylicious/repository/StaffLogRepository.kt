@@ -35,4 +35,9 @@ interface StaffLogRepository : JpaRepository<StaffLogEntity, String> {
         branchId: Int,
         lastModified: Long
     ): List<StaffLogEntity>
+
+    fun countByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): Long
 }

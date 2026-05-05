@@ -69,5 +69,21 @@ interface TransactionItemRepository : JpaRepository<TransactionItemEntity, Strin
         @Param("since") since: Long
     ): List<TransactionItemEntity>
 
-
+    @Query(
+        """
+    SELECT COUNT(ti)
+    FROM TransactionItemEntity ti
+    JOIN TransactionEntity t
+        ON ti.transactionId = t.transactionId
+    WHERE t.branchId = :branchId
+    AND (
+        ti.lastModified > :since
+        OR t.lastModified > :since
+    )
+    """
+    )
+    fun countChangedByBranchSince(
+        @Param("branchId") branchId: Int,
+        @Param("since") since: Long
+    ): Long
 }

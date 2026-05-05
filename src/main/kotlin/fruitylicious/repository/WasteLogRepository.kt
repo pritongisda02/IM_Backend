@@ -40,4 +40,9 @@ interface WasteLogRepository : JpaRepository<WasteLogEntity, String> {
         branchId: Int,
         lastModified: Long
     ): List<WasteLogEntity>
+
+    fun countByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): Long
 }

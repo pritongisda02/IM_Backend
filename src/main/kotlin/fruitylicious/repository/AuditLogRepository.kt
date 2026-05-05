@@ -35,4 +35,9 @@ interface AuditLogRepository : JpaRepository<AuditLogEntity, String> {
         branchId: Int,
         lastModified: Long
     ): List<AuditLogEntity>
+
+    fun countByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): Long
 }

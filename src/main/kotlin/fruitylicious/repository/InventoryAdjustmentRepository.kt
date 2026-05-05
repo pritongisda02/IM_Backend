@@ -10,4 +10,10 @@ interface InventoryAdjustmentRepository : JpaRepository<InventoryAdjustmentEntit
         branchId: Int,
         lastModified: Long
     ): List<InventoryAdjustmentEntity>
+    fun countByLastModifiedGreaterThan(lastModified: Long): Long
+
+    fun countByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): Long
 }

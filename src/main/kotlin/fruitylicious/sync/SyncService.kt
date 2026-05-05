@@ -496,4 +496,70 @@ class SyncService(
         return incomingTransactionsById[transactionId]?.branchId
             ?: transactionRepository.findById(transactionId).orElse(null)?.branchId
     }
+
+    fun hasUpdates(
+        requestingBranchId: Int,
+        since: Long
+    ): HasUpdatesResponse {
+        val serverTime = System.currentTimeMillis()
+
+        val changedCount =
+            branchRepository.countByLastModifiedGreaterThan(since) +
+                    userRepository.countByLastModifiedGreaterThan(since) +
+                    productRepository.countByLastModifiedGreaterThan(since) +
+                    ingredientRepository.countByLastModifiedGreaterThan(since) +
+                    productVariantRepository.countByLastModifiedGreaterThan(since) +
+                    productRecipeRepository.countByLastModifiedGreaterThan(since) +
+
+                    inventoryRepository.countByIdBranchIdAndLastModifiedGreaterThan(
+                        branchId = requestingBranchId,
+                        lastModified = since
+                    ) +
+
+                    transactionRepository.countByBranchIdAndLastModifiedGreaterThan(
+                        branchId = requestingBranchId,
+                        lastModified = since
+                    ) +
+
+                    transactionItemRepository.countChangedByBranchSince(
+                        branchId = requestingBranchId,
+                        since = since
+                    ) +
+
+                    transactionItemAddonRepository.countChangedByBranchSince(
+                        branchId = requestingBranchId,
+                        since = since
+                    ) +
+
+                    restockLogRepository.countByBranchIdAndLastModifiedGreaterThan(
+                        branchId = requestingBranchId,
+                        lastModified = since
+                    ) +
+
+                    inventoryAdjustmentRepository.countByBranchIdAndLastModifiedGreaterThan(
+                        branchId = requestingBranchId,
+                        lastModified = since
+                    ) +
+
+                    wasteLogRepository.countByBranchIdAndLastModifiedGreaterThan(
+                        branchId = requestingBranchId,
+                        lastModified = since
+                    ) +
+
+                    staffLogRepository.countByBranchIdAndLastModifiedGreaterThan(
+                        branchId = requestingBranchId,
+                        lastModified = since
+                    ) +
+
+                    auditLogRepository.countByBranchIdAndLastModifiedGreaterThan(
+                        branchId = requestingBranchId,
+                        lastModified = since
+                    )
+
+        return HasUpdatesResponse(
+            hasUpdates = changedCount > 0,
+            changedCount = changedCount,
+            serverTime = serverTime
+        )
+    }
 }

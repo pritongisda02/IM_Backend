@@ -33,4 +33,9 @@ interface InventoryRepository : JpaRepository<InventoryEntity, InventoryId> {
         branchId: Int,
         lastModified: Long
     ): List<InventoryEntity>
+
+    fun countByIdBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): Long
 }
