@@ -2,12 +2,25 @@ package fruitylicious.repository
 
 import fruitylicious.entity.StaffLogEntity
 import fruitylicious.repository.report.StaffLogReportRow
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface StaffLogRepository : JpaRepository<StaffLogEntity, String> {
+
     fun findByLastModifiedGreaterThan(lastModified: Long): List<StaffLogEntity>
+
+    fun findByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): List<StaffLogEntity>
+
+    fun countByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): Long
 
     @Query(
         """
@@ -31,13 +44,32 @@ interface StaffLogRepository : JpaRepository<StaffLogEntity, String> {
         @Param("to") to: Long
     ): List<StaffLogReportRow>
 
-    fun findByBranchIdAndLastModifiedGreaterThan(
-        branchId: Int,
-        lastModified: Long
-    ): List<StaffLogEntity>
-
-    fun countByBranchIdAndLastModifiedGreaterThan(
-        branchId: Int,
-        lastModified: Long
-    ): Long
+    @Query(
+        value = """
+            SELECT
+                s.logId AS logId,
+                s.userId AS userId,
+                u.name AS userName,
+                s.clockIn AS clockIn,
+                s.clockOut AS clockOut,
+                s.image AS image
+            FROM StaffLogEntity s
+            JOIN UserEntity u ON s.userId = u.userId
+            WHERE s.clockIn BETWEEN :from AND :to
+            AND (:branchId IS NULL OR s.branchId = :branchId)
+            ORDER BY s.clockIn DESC
+        """,
+        countQuery = """
+            SELECT COUNT(s)
+            FROM StaffLogEntity s
+            WHERE s.clockIn BETWEEN :from AND :to
+            AND (:branchId IS NULL OR s.branchId = :branchId)
+        """
+    )
+    fun getStaffLogReportRowsPage(
+        @Param("branchId") branchId: Int?,
+        @Param("from") from: Long,
+        @Param("to") to: Long,
+        pageable: Pageable
+    ): Page<StaffLogReportRow>
 }

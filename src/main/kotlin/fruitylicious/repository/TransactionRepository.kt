@@ -4,13 +4,25 @@ import fruitylicious.entity.TransactionEntity
 import fruitylicious.repository.report.PaymentBreakdownRow
 import fruitylicious.repository.report.SalesSummaryRow
 import fruitylicious.repository.report.TransactionReportRow
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface TransactionRepository : JpaRepository<TransactionEntity, String> {
+
     fun findByLastModifiedGreaterThan(lastModified: Long): List<TransactionEntity>
-    fun findByBranchIdAndLastModifiedGreaterThan(branchId: Int, lastModified: Long): List<TransactionEntity>
+
+    fun findByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): List<TransactionEntity>
+
+    fun countByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): Long
 
     @Query(
         """
@@ -51,21 +63,21 @@ interface TransactionRepository : JpaRepository<TransactionEntity, String> {
 
     @Query(
         """
-    SELECT
-        t.transactionId AS transactionId,
-        t.userId AS userId,
-        u.name AS userName,
-        t.branchId AS branchId,
-        t.totalAmount AS totalAmount,
-        t.paymentType AS paymentType,
-        t.dateTime AS dateTime,
-        t.status AS status
-    FROM TransactionEntity t
-    JOIN UserEntity u ON t.userId = u.userId
-    WHERE t.branchId = :branchId
-    AND t.dateTime BETWEEN :from AND :to
-    ORDER BY t.dateTime DESC
-    """
+        SELECT
+            t.transactionId AS transactionId,
+            t.userId AS userId,
+            u.name AS userName,
+            t.branchId AS branchId,
+            t.totalAmount AS totalAmount,
+            t.paymentType AS paymentType,
+            t.dateTime AS dateTime,
+            t.status AS status
+        FROM TransactionEntity t
+        JOIN UserEntity u ON t.userId = u.userId
+        WHERE t.branchId = :branchId
+        AND t.dateTime BETWEEN :from AND :to
+        ORDER BY t.dateTime DESC
+        """
     )
     fun getTransactionReportRows(
         @Param("branchId") branchId: Int,
@@ -75,28 +87,54 @@ interface TransactionRepository : JpaRepository<TransactionEntity, String> {
 
     @Query(
         """
-    SELECT
-        t.transactionId AS transactionId,
-        t.userId AS userId,
-        u.name AS userName,
-        t.branchId AS branchId,
-        t.totalAmount AS totalAmount,
-        t.paymentType AS paymentType,
-        t.dateTime AS dateTime,
-        t.status AS status
-    FROM TransactionEntity t
-    JOIN UserEntity u ON t.userId = u.userId
-    WHERE t.dateTime BETWEEN :from AND :to
-    ORDER BY t.dateTime DESC
-    """
+        SELECT
+            t.transactionId AS transactionId,
+            t.userId AS userId,
+            u.name AS userName,
+            t.branchId AS branchId,
+            t.totalAmount AS totalAmount,
+            t.paymentType AS paymentType,
+            t.dateTime AS dateTime,
+            t.status AS status
+        FROM TransactionEntity t
+        JOIN UserEntity u ON t.userId = u.userId
+        WHERE t.dateTime BETWEEN :from AND :to
+        ORDER BY t.dateTime DESC
+        """
     )
     fun getAllTransactionReportRows(
         @Param("from") from: Long,
         @Param("to") to: Long
     ): List<TransactionReportRow>
 
-    fun countByBranchIdAndLastModifiedGreaterThan(
-        branchId: Int,
-        lastModified: Long
-    ): Long
+    @Query(
+        value = """
+            SELECT
+                t.transactionId AS transactionId,
+                t.userId AS userId,
+                u.name AS userName,
+                t.branchId AS branchId,
+                t.totalAmount AS totalAmount,
+                t.paymentType AS paymentType,
+                t.dateTime AS dateTime,
+                t.status AS status
+            FROM TransactionEntity t
+            JOIN UserEntity u ON t.userId = u.userId
+            WHERE t.dateTime BETWEEN :from AND :to
+            AND (:branchId IS NULL OR t.branchId = :branchId)
+            ORDER BY t.dateTime DESC
+        """,
+        countQuery = """
+            SELECT COUNT(t)
+            FROM TransactionEntity t
+            WHERE t.dateTime BETWEEN :from AND :to
+            AND (:branchId IS NULL OR t.branchId = :branchId)
+        """
+    )
+    fun getTransactionReportRowsPage(
+        @Param("branchId") branchId: Int?,
+        @Param("from") from: Long,
+        @Param("to") to: Long,
+        pageable: Pageable
+    ): Page<TransactionReportRow>
 }

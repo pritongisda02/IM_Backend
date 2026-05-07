@@ -14,6 +14,19 @@ data class SalesReportDto(
     val items: List<SalesReportItemDto>
 )
 
+data class SalesSummaryDto(
+    val branchId: Int?,
+    val branchName: String?,
+    val from: Long,
+    val to: Long,
+    val totalSales: Double,
+    val totalTransactions: Int,
+    val averageTransactionValue: Double,
+    val previousSales: Double = 0.0,
+    val cashTotal: Double = 0.0,
+    val gcashTotal: Double = 0.0
+)
+
 data class SalesReportItemDto(
     val productId: Int,
     val productName: String,
@@ -46,6 +59,15 @@ data class WasteReportDto(
     val items: List<WasteReportItemDto>
 )
 
+data class WasteSummaryDto(
+    val branchId: Int?,
+    val branchName: String?,
+    val from: Long,
+    val to: Long,
+    val totalWasteQuantity: Double,
+    val totalWasteEntries: Long
+)
+
 data class WasteReportItemDto(
     val wasteId: String,
     val ingredientId: Int,
@@ -68,6 +90,15 @@ data class RestockReportDto(
     val items: List<RestockReportItemDto>
 )
 
+data class RestockSummaryDto(
+    val branchId: Int?,
+    val branchName: String?,
+    val from: Long,
+    val to: Long,
+    val totalRestockQuantity: Double,
+    val totalRestockEntries: Long
+)
+
 data class RestockReportItemDto(
     val restockId: String,
     val ingredientId: Int,
@@ -75,6 +106,36 @@ data class RestockReportItemDto(
     val quantityAdded: Double,
     val unitType: String,
     val supplier: String,
+    val userId: Int,
+    val userName: String,
+    val dateTime: Long
+)
+
+data class InventoryAdjustmentReportDto(
+    val branchId: Int?,
+    val branchName: String?,
+    val from: Long,
+    val to: Long,
+    val totalAdjustmentAmount: Double,
+    val items: List<InventoryAdjustmentReportItemDto>
+)
+
+data class InventoryAdjustmentSummaryDto(
+    val branchId: Int?,
+    val branchName: String?,
+    val from: Long,
+    val to: Long,
+    val totalAdjustmentAmount: Double,
+    val totalAdjustmentEntries: Long
+)
+
+data class InventoryAdjustmentReportItemDto(
+    val adjustmentId: String,
+    val ingredientId: Int,
+    val ingredientName: String,
+    val adjustmentAmount: Double,
+    val unitType: String,
+    val reason: String,
     val userId: Int,
     val userName: String,
     val dateTime: Long

@@ -30,9 +30,6 @@ open class IngredientEntity(
     @Column(name = "unit_type", nullable = false)
     open var unitType: String = "",
 
-    @Column(name = "estimated_weight_per_unit", nullable = false)
-    open var estimatedWeightPerUnit: Double = 0.0,
-
     @Column(name = "is_packaging", nullable = false)
     open var isPackaging: Boolean = false,
 

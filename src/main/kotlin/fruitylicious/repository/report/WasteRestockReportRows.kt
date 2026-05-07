@@ -13,6 +13,11 @@ interface WasteReportRow {
     val image: String?
 }
 
+interface WasteSummaryRow {
+    val totalWasteQuantity: Double?
+    val totalWasteEntries: Long?
+}
+
 interface RestockReportRow {
     val restockId: String
     val ingredientId: Int
@@ -23,4 +28,9 @@ interface RestockReportRow {
     val userId: Int
     val userName: String
     val dateTime: Long
+}
+
+interface RestockSummaryRow {
+    val totalRestockQuantity: Double?
+    val totalRestockEntries: Long?
 }
