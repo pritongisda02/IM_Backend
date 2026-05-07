@@ -12,6 +12,7 @@ import fruitylicious.repository.WasteLogRepository
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import fruitylicious.repository.TransactionItemAddonRepository
 
 @Service
 class ReportsService(
@@ -23,7 +24,8 @@ class ReportsService(
     private val restockLogRepository: RestockLogRepository,
     private val inventoryAdjustmentRepository: InventoryAdjustmentRepository,
     private val staffLogRepository: StaffLogRepository,
-    private val auditLogRepository: AuditLogRepository
+    private val auditLogRepository: AuditLogRepository,
+    private val transactionItemAddonRepository: TransactionItemAddonRepository,
 ) {
 
     fun salesReport(
@@ -657,24 +659,40 @@ class ReportsService(
     ): List<TransactionReportItemDto> {
         val transactionIds = transactions.map { it.transactionId }
 
-        val linesByTransaction = if (transactionIds.isEmpty()) {
-            emptyMap()
+        val lines = if (transactionIds.isEmpty()) {
+            emptyList()
         } else {
             transactionItemRepository.getTransactionLines(transactionIds)
-                .groupBy { it.transactionId }
         }
 
+        val transactionItemIds = lines.map { it.transactionItemId }
+
+        val addonsByTransactionItemId = if (transactionItemIds.isEmpty()) {
+            emptyMap()
+        } else {
+            transactionItemAddonRepository.getAddonLines(transactionItemIds)
+                .groupBy { it.transactionItemId }
+        }
+
+        val linesByTransaction = lines.groupBy { it.transactionId }
+
         return transactions.map { transaction ->
-            val lines = linesByTransaction[transaction.transactionId]
+            val transactionLines = linesByTransaction[transaction.transactionId]
                 .orEmpty()
                 .map { line ->
+                    val addons = addonsByTransactionItemId[line.transactionItemId]
+                        .orEmpty()
+                        .map { addon ->
+                            addon.addonName
+                        }
+
                     TransactionLineReportDto(
                         productId = line.productId,
                         productName = line.productName,
                         quantity = line.quantity,
                         subtotal = line.subtotal,
                         sizeName = line.sizeName,
-                        addons = emptyList()
+                        addons = addons
                     )
                 }
 
@@ -687,7 +705,7 @@ class ReportsService(
                 paymentType = transaction.paymentType,
                 dateTime = transaction.dateTime,
                 status = transaction.status,
-                items = lines
+                items = transactionLines
             )
         }
     }

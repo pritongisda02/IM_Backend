@@ -71,18 +71,19 @@ interface TransactionItemRepository : JpaRepository<TransactionItemEntity, Strin
 
     @Query(
         """
-        SELECT
-            ti.transactionId AS transactionId,
-            p.productId AS productId,
-            p.productName AS productName,
-            ti.quantity AS quantity,
-            ti.subtotal AS subtotal,
-            ti.sizeName AS sizeName
-        FROM TransactionItemEntity ti
-        JOIN ProductEntity p ON ti.productId = p.productId
-        WHERE ti.transactionId IN :transactionIds
-        ORDER BY ti.transactionId ASC
-        """
+    SELECT
+        ti.transactionItemId AS transactionItemId,
+        ti.transactionId AS transactionId,
+        p.productId AS productId,
+        p.productName AS productName,
+        ti.quantity AS quantity,
+        ti.subtotal AS subtotal,
+        ti.sizeName AS sizeName
+    FROM TransactionItemEntity ti
+    JOIN ProductEntity p ON ti.productId = p.productId
+    WHERE ti.transactionId IN :transactionIds
+    ORDER BY ti.transactionId ASC
+    """
     )
     fun getTransactionLines(
         @Param("transactionIds") transactionIds: List<String>
