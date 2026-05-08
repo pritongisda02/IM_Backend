@@ -33,6 +33,9 @@ open class TransactionEntity(
     @Column(name = "branch_id", nullable = false)
     open var branchId: Int = 0,
 
+    @Column(name = "transaction_name")
+    open var transactionName: String? = null,
+
     @Column(name = "total_amount", nullable = false)
     open var totalAmount: Double = 0.0,
 

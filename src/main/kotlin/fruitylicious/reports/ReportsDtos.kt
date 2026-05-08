@@ -151,6 +151,7 @@ data class TransactionReportDto(
 
 data class TransactionReportItemDto(
     val transactionId: String,
+    val transactionName: String? = null,
     val userId: Int,
     val userName: String,
     val branchId: Int,

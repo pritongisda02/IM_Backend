@@ -53,7 +53,7 @@ class StatsDataSeeder(
     private val staffLogRepository: StaffLogRepository,
     private val auditLogRepository: AuditLogRepository,
 
-    @Value("\${fruitylicious.seed.stats.start-date:2026-03-01}")
+    @Value("\${fruitylicious.seed.stats.start-date:}")
     private val startDateText: String,
 
     @Value("\${fruitylicious.seed.stats.end-date:}")
@@ -67,11 +67,18 @@ class StatsDataSeeder(
     override fun run(args: ApplicationArguments) {
         seedDefaultUsersIfMissing()
 
-        val startDate = LocalDate.parse(startDateText)
-        val endDate = if (endDateText.isBlank()) {
-            LocalDate.now(zoneId)
+        val today = LocalDate.now(zoneId)
+
+        val startDate = if (startDateText.isBlank()) {
+            today.minusDays(6)
         } else {
-            LocalDate.parse(endDateText)
+            LocalDate.parse(startDateText)
+        }
+
+        val endDate = if (endDateText.isBlank()) {
+            today
+        } else {
+            LocalDate.parse(endDateText).coerceAtMost(today)
         }
 
         if (endDate.isBefore(startDate)) {
@@ -253,16 +260,20 @@ class StatsDataSeeder(
             return
         }
 
-        val hour = random.nextInt(9, 20)
-        val minute = random.nextInt(0, 60)
-        val transactionTime = epochMillis(date, hour, minute)
+        val transactionTime = randomTransactionTime(date)
         val paymentType = if (random.nextDouble() < 0.65) "Cash" else "Gcash"
+
+        val transactionName = generateTransactionName(
+            branchId = branchId,
+            orderNo = orderNo
+        )
 
         transactionRepository.save(
             TransactionEntity(
                 transactionId = transactionId,
                 userId = userId,
                 branchId = branchId,
+                transactionName = transactionName,
                 totalAmount = roundMoney(transactionTotal),
                 paymentType = paymentType,
                 dateTime = transactionTime,
@@ -483,6 +494,56 @@ class StatsDataSeeder(
         }
 
         return chosen.distinctBy { it.productId }
+    }
+
+    private fun randomTransactionTime(date: LocalDate): Long {
+        val today = LocalDate.now(zoneId)
+        val openingMinute = 9 * 60
+        val closingMinute = 20 * 60
+
+        val maxMinuteOfDay = if (date == today) {
+            val now = LocalTime.now(zoneId)
+            val currentMinute = now.hour * 60 + now.minute
+
+            currentMinute
+                .coerceAtMost(closingMinute)
+                .coerceAtLeast(openingMinute)
+        } else {
+            closingMinute
+        }
+
+        val selectedMinuteOfDay = if (maxMinuteOfDay <= openingMinute) {
+            openingMinute
+        } else {
+            random.nextInt(openingMinute, maxMinuteOfDay + 1)
+        }
+
+        val hour = selectedMinuteOfDay / 60
+        val minute = selectedMinuteOfDay % 60
+
+        return epochMillis(date, hour, minute)
+    }
+
+    private fun generateTransactionName(
+        branchId: Int,
+        orderNo: Int
+    ): String {
+        val names = listOf(
+            "Walk-in Customer",
+            "Takeout Order",
+            "Dine-in Customer",
+            "GCash Customer",
+            "Regular Customer",
+            "Student Customer",
+            "Office Customer",
+            "Family Order",
+            "Group Order",
+            "Quick Pickup"
+        )
+
+        val baseName = names.random(random)
+
+        return "$baseName B$branchId-${orderNo.toString().padStart(3, '0')}"
     }
 
     private fun epochMillis(

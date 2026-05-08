@@ -65,6 +65,7 @@ interface TransactionRepository : JpaRepository<TransactionEntity, String> {
         """
         SELECT
             t.transactionId AS transactionId,
+            t.transactionName AS transactionName,
             t.userId AS userId,
             u.name AS userName,
             t.branchId AS branchId,
@@ -89,6 +90,7 @@ interface TransactionRepository : JpaRepository<TransactionEntity, String> {
         """
         SELECT
             t.transactionId AS transactionId,
+            t.transactionName AS transactionName,
             t.userId AS userId,
             u.name AS userName,
             t.branchId AS branchId,
@@ -111,6 +113,7 @@ interface TransactionRepository : JpaRepository<TransactionEntity, String> {
         value = """
             SELECT
                 t.transactionId AS transactionId,
+                t.transactionName AS transactionName,
                 t.userId AS userId,
                 u.name AS userName,
                 t.branchId AS branchId,

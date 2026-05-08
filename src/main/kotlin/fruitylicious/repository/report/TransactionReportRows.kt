@@ -2,6 +2,7 @@ package fruitylicious.repository.report
 
 interface TransactionReportRow {
     val transactionId: String
+    val transactionName: String?
     val userId: Int
     val userName: String
     val branchId: Int

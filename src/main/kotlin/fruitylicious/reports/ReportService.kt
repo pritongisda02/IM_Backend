@@ -698,6 +698,7 @@ class ReportsService(
 
             TransactionReportItemDto(
                 transactionId = transaction.transactionId,
+                transactionName = transaction.transactionName,
                 userId = transaction.userId,
                 userName = transaction.userName,
                 branchId = transaction.branchId,

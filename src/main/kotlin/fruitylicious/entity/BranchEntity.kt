@@ -3,6 +3,7 @@ package fruitylicious.entity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import jakarta.persistence.Lob
 import jakarta.persistence.Table
 
 @Entity
@@ -20,6 +21,19 @@ open class BranchEntity(
 
     @Column(name = "contact_number", nullable = false)
     open var contactNumber: String = "",
+
+    @Lob
+    @Column(name = "gcash_qr_image", columnDefinition = "CLOB")
+    open var gcashQrImage: String? = null,
+
+    @Column(name = "gcash_qr_image_type")
+    open var gcashQrImageType: String? = null,
+
+    @Column(name = "gcash_account_name")
+    open var gcashAccountName: String? = null,
+
+    @Column(name = "gcash_account_number")
+    open var gcashAccountNumber: String? = null,
 
     @Column(name = "last_modified", nullable = false)
     open var lastModified: Long = 0L,
