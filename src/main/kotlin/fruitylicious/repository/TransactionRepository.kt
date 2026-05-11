@@ -1,43 +1,143 @@
 package fruitylicious.repository
 
-import fruitylicious.entity.Transaction
+import fruitylicious.entity.TransactionEntity
+import fruitylicious.repository.report.PaymentBreakdownRow
+import fruitylicious.repository.report.SalesSummaryRow
+import fruitylicious.repository.report.TransactionReportRow
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import org.springframework.stereotype.Repository
-import java.math.BigDecimal
-import java.time.Instant
 
-@Repository
-interface TransactionRepository : JpaRepository<Transaction, Long> {
+interface TransactionRepository : JpaRepository<TransactionEntity, String> {
 
-    fun findAllByBranchBranchIdAndDateTimeBetween(
-        branchId: Long,
-        from: Instant,
-        to: Instant
-    ): List<Transaction>
+    fun findByLastModifiedGreaterThan(lastModified: Long): List<TransactionEntity>
 
-    @Query("""
-        SELECT COALESCE(SUM(t.totalAmount), 0)
-        FROM Transaction t
-        WHERE t.branch.branchId = :branchId
-          AND t.dateTime BETWEEN :from AND :to
-          AND t.status = 'completed'
-    """)
-    fun sumTotalAmountByBranchAndDateRange(
-        @Param("branchId") branchId: Long,
-        @Param("from") from: Instant,
-        @Param("to") to: Instant
-    ): BigDecimal
+    fun findByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): List<TransactionEntity>
 
-    @Query("""
-        SELECT COALESCE(SUM(t.totalAmount), 0)
-        FROM Transaction t
+    fun countByBranchIdAndLastModifiedGreaterThan(
+        branchId: Int,
+        lastModified: Long
+    ): Long
+
+    @Query(
+        """
+        SELECT 
+            COALESCE(SUM(t.totalAmount), 0) AS totalSales,
+            COUNT(t.transactionId) AS totalTransactions
+        FROM TransactionEntity t
+        WHERE t.status = 'completed'
+        AND t.dateTime BETWEEN :from AND :to
+        AND (:branchId IS NULL OR t.branchId = :branchId)
+        """
+    )
+    fun getSalesSummary(
+        @Param("branchId") branchId: Int?,
+        @Param("from") from: Long,
+        @Param("to") to: Long
+    ): SalesSummaryRow
+
+    @Query(
+        """
+        SELECT 
+            t.paymentType AS paymentType,
+            COUNT(t.transactionId) AS transactionCount,
+            COALESCE(SUM(t.totalAmount), 0) AS totalAmount
+        FROM TransactionEntity t
+        WHERE t.status = 'completed'
+        AND t.dateTime BETWEEN :from AND :to
+        AND (:branchId IS NULL OR t.branchId = :branchId)
+        GROUP BY t.paymentType
+        ORDER BY totalAmount DESC
+        """
+    )
+    fun getPaymentBreakdown(
+        @Param("branchId") branchId: Int?,
+        @Param("from") from: Long,
+        @Param("to") to: Long
+    ): List<PaymentBreakdownRow>
+
+    @Query(
+        """
+        SELECT
+            t.transactionId AS transactionId,
+            t.transactionName AS transactionName,
+            t.userId AS userId,
+            u.name AS userName,
+            t.branchId AS branchId,
+            t.totalAmount AS totalAmount,
+            t.paymentType AS paymentType,
+            t.dateTime AS dateTime,
+            t.status AS status
+        FROM TransactionEntity t
+        JOIN UserEntity u ON t.userId = u.userId
+        WHERE t.branchId = :branchId
+        AND t.dateTime BETWEEN :from AND :to
+        ORDER BY t.dateTime DESC
+        """
+    )
+    fun getTransactionReportRows(
+        @Param("branchId") branchId: Int,
+        @Param("from") from: Long,
+        @Param("to") to: Long
+    ): List<TransactionReportRow>
+
+    @Query(
+        """
+        SELECT
+            t.transactionId AS transactionId,
+            t.transactionName AS transactionName,
+            t.userId AS userId,
+            u.name AS userName,
+            t.branchId AS branchId,
+            t.totalAmount AS totalAmount,
+            t.paymentType AS paymentType,
+            t.dateTime AS dateTime,
+            t.status AS status
+        FROM TransactionEntity t
+        JOIN UserEntity u ON t.userId = u.userId
         WHERE t.dateTime BETWEEN :from AND :to
-          AND t.status = 'completed'
-    """)
-    fun sumTotalAmountAllBranches(
-        @Param("from") from: Instant,
-        @Param("to") to: Instant
-    ): BigDecimal
+        ORDER BY t.dateTime DESC
+        """
+    )
+    fun getAllTransactionReportRows(
+        @Param("from") from: Long,
+        @Param("to") to: Long
+    ): List<TransactionReportRow>
+
+    @Query(
+        value = """
+            SELECT
+                t.transactionId AS transactionId,
+                t.transactionName AS transactionName,
+                t.userId AS userId,
+                u.name AS userName,
+                t.branchId AS branchId,
+                t.totalAmount AS totalAmount,
+                t.paymentType AS paymentType,
+                t.dateTime AS dateTime,
+                t.status AS status
+            FROM TransactionEntity t
+            JOIN UserEntity u ON t.userId = u.userId
+            WHERE t.dateTime BETWEEN :from AND :to
+            AND (:branchId IS NULL OR t.branchId = :branchId)
+            ORDER BY t.dateTime DESC
+        """,
+        countQuery = """
+            SELECT COUNT(t)
+            FROM TransactionEntity t
+            WHERE t.dateTime BETWEEN :from AND :to
+            AND (:branchId IS NULL OR t.branchId = :branchId)
+        """
+    )
+    fun getTransactionReportRowsPage(
+        @Param("branchId") branchId: Int?,
+        @Param("from") from: Long,
+        @Param("to") to: Long,
+        pageable: Pageable
+    ): Page<TransactionReportRow>
 }

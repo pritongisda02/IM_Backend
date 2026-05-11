@@ -1,0 +1,472 @@
+-- =========================================================
+-- FRUITYLICIOUS POS CENTRAL ORACLE DATABASE
+-- 06_demo_queries.sql
+-- Demo queries, report outputs, and mining patterns
+-- =========================================================
+
+
+-- =========================================================
+-- 1. VIEW ALL BRANCHES
+-- Shows both branches stored in the central DB.
+-- =========================================================
+
+SELECT
+    branch_id,
+    branch_name,
+    address,
+    contact_number
+FROM branches
+ORDER BY branch_id;
+
+
+-- =========================================================
+-- 2. VIEW USERS BY ROLE
+-- Demonstrates authentication-related user table.
+-- =========================================================
+
+SELECT
+    user_id,
+    name,
+    username,
+    role
+FROM users
+ORDER BY role, name;
+
+
+-- =========================================================
+-- 3. INVENTORY PER BRANCH
+-- Shows per-branch inventory table.
+-- =========================================================
+
+SELECT
+    b.branch_name,
+    i.ingredient_name,
+    i.unit_type,
+    inv.current_stock,
+    i.low_stock_threshold
+FROM inventory inv
+INNER JOIN branches b
+    ON inv.branch_id = b.branch_id
+INNER JOIN ingredients i
+    ON inv.ingredient_id = i.ingredient_id
+ORDER BY b.branch_id, i.ingredient_name;
+
+
+-- =========================================================
+-- 4. LOW STOCK NOTIFICATIONS
+-- Uses vw_low_stock_items from 03_triggers_procedures.sql.
+-- =========================================================
+
+SELECT
+    branch_id,
+    branch_name,
+    ingredient_id,
+    ingredient_name,
+    unit_type,
+    current_stock,
+    low_stock_threshold,
+    stock_status
+FROM vw_low_stock_items
+ORDER BY branch_id, stock_status, ingredient_name;
+
+
+-- =========================================================
+-- 5. SALES TOTAL PER BRANCH
+-- Shows branch comparison.
+-- =========================================================
+
+SELECT
+    b.branch_name,
+    COUNT(t.transaction_id) AS transaction_count,
+    SUM(t.total_amount) AS total_sales
+FROM transactions t
+INNER JOIN branches b
+    ON t.branch_id = b.branch_id
+WHERE t.status = 'completed'
+GROUP BY b.branch_name
+ORDER BY total_sales DESC;
+
+
+-- =========================================================
+-- 6. COMBINED SALES REPORT
+-- Owner/admin combined view.
+-- =========================================================
+
+SELECT
+    COUNT(transaction_id) AS total_transactions,
+    SUM(total_amount) AS combined_sales,
+    AVG(total_amount) AS average_transaction_value
+FROM transactions
+WHERE status = 'completed';
+
+
+-- =========================================================
+-- 7. DAILY SALES PER BRANCH
+-- Useful for dashboard/reporting.
+-- Converts epoch milliseconds to Oracle DATE.
+-- =========================================================
+
+SELECT
+    b.branch_name,
+    TRUNC(DATE '1970-01-01' + (t.date_time / 86400000)) AS sales_date,
+    COUNT(t.transaction_id) AS transaction_count,
+    SUM(t.total_amount) AS daily_sales
+FROM transactions t
+INNER JOIN branches b
+    ON t.branch_id = b.branch_id
+WHERE t.status = 'completed'
+GROUP BY
+    b.branch_name,
+    TRUNC(DATE '1970-01-01' + (t.date_time / 86400000))
+ORDER BY sales_date DESC, b.branch_name;
+
+
+-- =========================================================
+-- 8. TOP SELLING PRODUCTS
+-- Mining pattern: product demand ranking.
+-- =========================================================
+
+SELECT
+    p.product_name,
+    SUM(ti.quantity) AS total_quantity_sold,
+    SUM(ti.subtotal) AS gross_sales
+FROM transaction_items ti
+INNER JOIN transactions t
+    ON ti.transaction_id = t.transaction_id
+INNER JOIN products p
+    ON ti.product_id = p.product_id
+WHERE t.status = 'completed'
+GROUP BY p.product_name
+ORDER BY total_quantity_sold DESC;
+
+
+-- =========================================================
+-- 9. PAYMENT METHOD BREAKDOWN
+-- Mining pattern: Cash vs GCash behavior.
+-- =========================================================
+
+SELECT
+    payment_type,
+    COUNT(transaction_id) AS transaction_count,
+    SUM(total_amount) AS total_amount,
+    ROUND(
+        COUNT(transaction_id) * 100 /
+        NULLIF((SELECT COUNT(*) FROM transactions WHERE status = 'completed'), 0),
+        2
+    ) AS transaction_percentage
+FROM transactions
+WHERE status = 'completed'
+GROUP BY payment_type
+ORDER BY total_amount DESC;
+
+
+-- =========================================================
+-- 10. QUEUE STATUS SUMMARY
+-- Demonstrates queue lifecycle.
+-- pending -> preparing -> ready -> completed
+-- =========================================================
+
+SELECT
+    status,
+    COUNT(*) AS count_per_status
+FROM transactions
+GROUP BY status
+ORDER BY
+    CASE status
+        WHEN 'pending' THEN 1
+        WHEN 'preparing' THEN 2
+        WHEN 'ready' THEN 3
+        WHEN 'completed' THEN 4
+        WHEN 'void' THEN 5
+        ELSE 6
+    END;
+
+
+-- =========================================================
+-- 11. RESTOCK SUMMARY BY INGREDIENT
+-- Shows inventory replenishment pattern.
+-- =========================================================
+
+SELECT
+    b.branch_name,
+    i.ingredient_name,
+    COUNT(r.restock_id) AS restock_count,
+    SUM(r.quantity_added) AS total_restocked,
+    AVG(r.quantity_added) AS average_restock_quantity
+FROM restock_logs r
+INNER JOIN branches b
+    ON r.branch_id = b.branch_id
+INNER JOIN ingredients i
+    ON r.ingredient_id = i.ingredient_id
+GROUP BY b.branch_name, i.ingredient_name
+ORDER BY total_restocked DESC;
+
+
+-- =========================================================
+-- 12. WASTE REASON FREQUENCY
+-- Mining pattern: identify common waste causes.
+-- =========================================================
+
+SELECT
+    reason,
+    COUNT(*) AS waste_count,
+    SUM(quantity) AS total_quantity_wasted
+FROM waste_logs
+GROUP BY reason
+ORDER BY waste_count DESC;
+
+
+-- =========================================================
+-- 13. WASTE BY INGREDIENT
+-- Mining pattern: high-loss ingredients.
+-- =========================================================
+
+SELECT
+    b.branch_name,
+    i.ingredient_name,
+    i.unit_type,
+    SUM(w.quantity) AS total_wasted
+FROM waste_logs w
+INNER JOIN branches b
+    ON w.branch_id = b.branch_id
+INNER JOIN ingredients i
+    ON w.ingredient_id = i.ingredient_id
+GROUP BY b.branch_name, i.ingredient_name, i.unit_type
+ORDER BY total_wasted DESC;
+
+
+-- =========================================================
+-- 14. STAFF ATTENDANCE LOGS
+-- Shows staff time tracking.
+-- =========================================================
+
+SELECT
+    u.name AS staff_name,
+    b.branch_name,
+    TO_CHAR(DATE '1970-01-01' + (s.clock_in / 86400000), 'YYYY-MM-DD HH24:MI') AS clock_in_time,
+    CASE
+        WHEN s.clock_out IS NULL THEN 'ACTIVE'
+        ELSE TO_CHAR(DATE '1970-01-01' + (s.clock_out / 86400000), 'YYYY-MM-DD HH24:MI')
+    END AS clock_out_time
+FROM staff_logs s
+INNER JOIN users u
+    ON s.user_id = u.user_id
+INNER JOIN branches b
+    ON s.branch_id = b.branch_id
+ORDER BY s.clock_in DESC;
+
+
+-- =========================================================
+-- 15. AUDIT LOGS
+-- Shows security/audit trail.
+-- =========================================================
+
+SELECT
+    a.log_id,
+    u.name AS user_name,
+    b.branch_name,
+    a.action,
+    a.table_affected,
+    TO_CHAR(DATE '1970-01-01' + (a.timestamp / 86400000), 'YYYY-MM-DD HH24:MI') AS action_time
+FROM audit_logs a
+INNER JOIN users u
+    ON a.user_id = u.user_id
+INNER JOIN branches b
+    ON a.branch_id = b.branch_id
+ORDER BY a.timestamp DESC;
+
+
+-- =========================================================
+-- 16. INVENTORY MOVEMENT SUMMARY
+-- Shows how stock changed from restock, waste, adjustments.
+-- =========================================================
+
+SELECT
+    ingredient_id,
+    branch_id,
+    SUM(restocked_qty) AS restocked_qty,
+    SUM(wasted_qty) AS wasted_qty,
+    SUM(adjusted_qty) AS adjusted_qty
+FROM (
+    SELECT
+        ingredient_id,
+        branch_id,
+        quantity_added AS restocked_qty,
+        0 AS wasted_qty,
+        0 AS adjusted_qty
+    FROM restock_logs
+
+    UNION ALL
+
+    SELECT
+        ingredient_id,
+        branch_id,
+        0 AS restocked_qty,
+        quantity AS wasted_qty,
+        0 AS adjusted_qty
+    FROM waste_logs
+
+    UNION ALL
+
+    SELECT
+        ingredient_id,
+        branch_id,
+        0 AS restocked_qty,
+        0 AS wasted_qty,
+        adjustment_amount AS adjusted_qty
+    FROM inventory_adjustments
+)
+GROUP BY ingredient_id, branch_id
+ORDER BY branch_id, ingredient_id;
+
+
+-- =========================================================
+-- 17. STAR SCHEMA: SALES BY BRANCH
+-- Uses fact_sales and dimensions.
+-- =========================================================
+
+SELECT
+    db.branch_name,
+    SUM(fs.gross_sales) AS total_sales,
+    SUM(fs.quantity) AS total_quantity
+FROM fact_sales fs
+INNER JOIN dim_branch db
+    ON fs.branch_key = db.branch_key
+WHERE fs.transaction_status = 'completed'
+GROUP BY db.branch_name
+ORDER BY total_sales DESC;
+
+
+-- =========================================================
+-- 18. STAR SCHEMA: SALES BY PRODUCT
+-- Warehouse mining pattern.
+-- =========================================================
+
+SELECT
+    dp.product_name,
+    SUM(fs.quantity) AS total_quantity_sold,
+    SUM(fs.gross_sales) AS total_sales
+FROM fact_sales fs
+INNER JOIN dim_product dp
+    ON fs.product_key = dp.product_key
+WHERE fs.transaction_status = 'completed'
+GROUP BY dp.product_name
+ORDER BY total_quantity_sold DESC;
+
+
+-- =========================================================
+-- 19. STAR SCHEMA: SALES BY PAYMENT TYPE
+-- Payment behavior mining pattern.
+-- =========================================================
+
+SELECT
+    pay.payment_type,
+    COUNT(*) AS sales_lines,
+    SUM(fs.gross_sales) AS total_sales
+FROM fact_sales fs
+INNER JOIN dim_payment pay
+    ON fs.payment_key = pay.payment_key
+WHERE fs.transaction_status = 'completed'
+GROUP BY pay.payment_type
+ORDER BY total_sales DESC;
+
+
+-- =========================================================
+-- 20. STAR SCHEMA: SALES BY DATE
+-- Trend analysis.
+-- =========================================================
+
+SELECT
+    dd.full_date,
+    dd.day_name,
+    SUM(fs.gross_sales) AS total_sales,
+    SUM(fs.quantity) AS total_quantity
+FROM fact_sales fs
+INNER JOIN dim_date dd
+    ON fs.date_key = dd.date_key
+WHERE fs.transaction_status = 'completed'
+GROUP BY dd.full_date, dd.day_name
+ORDER BY dd.full_date DESC;
+
+
+-- =========================================================
+-- 21. QUERY OPTIMIZATION DEMO
+-- Use EXPLAIN PLAN for reporting query.
+-- =========================================================
+
+EXPLAIN PLAN FOR
+SELECT
+    branch_id,
+    SUM(total_amount) AS total_sales
+FROM transactions
+WHERE status = 'completed'
+AND date_time BETWEEN 0 AND 9999999999999
+GROUP BY branch_id;
+
+SELECT *
+FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+
+-- =========================================================
+-- 22. PROCEDURE DEMO: RESTOCK
+-- Uncomment and run after sample data.
+-- =========================================================
+
+-- BEGIN
+--     sp_restock_ingredient(
+--         p_restock_id     => 'RS-DEMO-0001',
+--         p_ingredient_id  => 1,
+--         p_branch_id      => 1,
+--         p_user_id        => 1,
+--         p_quantity_added => 5,
+--         p_supplier       => 'Demo Supplier'
+--     );
+-- END;
+-- /
+
+
+-- =========================================================
+-- 23. PROCEDURE DEMO: WASTE
+-- =========================================================
+
+-- BEGIN
+--     sp_record_waste(
+--         p_waste_id      => 'WS-DEMO-0001',
+--         p_ingredient_id => 1,
+--         p_branch_id     => 1,
+--         p_user_id       => 2,
+--         p_quantity      => 1,
+--         p_reason        => 'Demo spoiled fruit',
+--         p_image         => NULL
+--     );
+-- END;
+-- /
+
+
+-- =========================================================
+-- 24. PROCEDURE DEMO: INVENTORY ADJUSTMENT
+-- =========================================================
+
+-- BEGIN
+--     sp_adjust_inventory(
+--         p_adjustment_id     => 'ADJ-DEMO-0001',
+--         p_ingredient_id     => 1,
+--         p_branch_id         => 1,
+--         p_user_id           => 1,
+--         p_adjustment_amount => 2,
+--         p_reason            => 'Demo stock recount'
+--     );
+-- END;
+-- /
+
+
+-- =========================================================
+-- 25. PROCEDURE DEMO: COMPLETE ORDER
+-- =========================================================
+
+-- BEGIN
+--     sp_complete_order(
+--         p_transaction_id => 'TX-B1-PENDING-0001'
+--     );
+-- END;
+-- /

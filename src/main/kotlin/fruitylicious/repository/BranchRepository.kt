@@ -1,12 +1,9 @@
 package fruitylicious.repository
 
-import fruitylicious.entity.Branch
+import fruitylicious.entity.BranchEntity
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.stereotype.Repository
-import java.time.Instant
 
-@Repository
-interface BranchRepository : JpaRepository<Branch, Long> {
-
-    fun findAllByLastModifiedAfter(since: Instant): List<Branch>
+interface BranchRepository : JpaRepository<BranchEntity, Int> {
+    fun findByLastModifiedGreaterThan(lastModified: Long): List<BranchEntity>
+    fun countByLastModifiedGreaterThan(lastModified: Long): Long
 }

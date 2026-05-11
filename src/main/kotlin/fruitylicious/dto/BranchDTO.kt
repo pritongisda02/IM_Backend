@@ -13,7 +13,12 @@ data class BranchRequest(
     val address: String,
 
     @field:NotBlank(message = "Contact number is required")
-    val contactNumber: String
+    val contactNumber: String,
+
+    val gcashQrImage: String? = null,
+    val gcashQrImageType: String? = null,
+    val gcashAccountName: String? = null,
+    val gcashAccountNumber: String? = null
 )
 
 data class BranchResponse(
@@ -21,5 +26,11 @@ data class BranchResponse(
     val branchName: String,
     val address: String,
     val contactNumber: String,
+
+    val gcashQrImage: String? = null,
+    val gcashQrImageType: String? = null,
+    val gcashAccountName: String? = null,
+    val gcashAccountNumber: String? = null,
+
     val lastModified: Instant
 )

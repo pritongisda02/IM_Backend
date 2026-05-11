@@ -32,6 +32,7 @@ dependencies {
 
 	// Oracle JDBC
 	implementation("com.oracle.database.jdbc:ojdbc11:23.4.0.24.05")
+	implementation("org.hibernate.orm:hibernate-community-dialects")
 
 	// JWT
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")

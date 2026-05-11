@@ -15,7 +15,6 @@ data class IngredientRequest(
     @field:NotBlank(message = "Unit type is required")
     val unitType: String,
 
-    val estimatedWeightPerUnit: BigDecimal? = null,
     val isPackaging: Boolean = false,
 
     @field:NotNull(message = "Low stock threshold is required")
@@ -27,7 +26,6 @@ data class IngredientResponse(
     val image: String?,
     val ingredientName: String,
     val unitType: String,
-    val estimatedWeightPerUnit: BigDecimal?,
     val isPackaging: Boolean,
     val lowStockThreshold: BigDecimal,
     val lastModified: Instant

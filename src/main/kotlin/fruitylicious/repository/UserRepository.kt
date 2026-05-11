@@ -1,15 +1,10 @@
 package fruitylicious.repository
 
-import fruitylicious.entity.User
+import fruitylicious.entity.UserEntity
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.stereotype.Repository
-import java.time.Instant
-import java.util.Optional
 
-@Repository
-interface UserRepository : JpaRepository<User, Long> {
-
-    fun findByUsername(username: String): Optional<User>
-
-    fun findAllByLastModifiedAfter(since: Instant): List<User>
+interface UserRepository : JpaRepository<UserEntity, Int> {
+    fun findByUsername(username: String): UserEntity?
+    fun findByLastModifiedGreaterThan(lastModified: Long): List<UserEntity>
+    fun countByLastModifiedGreaterThan(lastModified: Long): Long
 }
