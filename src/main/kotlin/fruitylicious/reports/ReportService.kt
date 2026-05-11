@@ -6,13 +6,13 @@ import fruitylicious.repository.InventoryAdjustmentRepository
 import fruitylicious.repository.InventoryRepository
 import fruitylicious.repository.RestockLogRepository
 import fruitylicious.repository.StaffLogRepository
+import fruitylicious.repository.TransactionItemAddonRepository
 import fruitylicious.repository.TransactionItemRepository
 import fruitylicious.repository.TransactionRepository
 import fruitylicious.repository.WasteLogRepository
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
-import fruitylicious.repository.TransactionItemAddonRepository
 
 @Service
 class ReportsService(
@@ -25,7 +25,7 @@ class ReportsService(
     private val inventoryAdjustmentRepository: InventoryAdjustmentRepository,
     private val staffLogRepository: StaffLogRepository,
     private val auditLogRepository: AuditLogRepository,
-    private val transactionItemAddonRepository: TransactionItemAddonRepository,
+    private val transactionItemAddonRepository: TransactionItemAddonRepository
 ) {
 
     fun salesReport(
@@ -284,7 +284,7 @@ class ReportsService(
                 userId = it.userId,
                 userName = it.userName,
                 dateTime = it.dateTime,
-                image = null
+                image = it.image
             )
         }
 
@@ -588,7 +588,7 @@ class ReportsService(
                 userName = it.userName,
                 clockIn = it.clockIn,
                 clockOut = it.clockOut,
-                image = null
+                image = it.image
             )
         }
 
