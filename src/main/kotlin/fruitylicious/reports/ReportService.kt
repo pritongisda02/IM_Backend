@@ -190,7 +190,8 @@ class ReportsService(
                 unitType = it.unitType,
                 currentStock = it.currentStock,
                 lowStockThreshold = it.lowStockThreshold,
-                isLowStock = it.currentStock <= it.lowStockThreshold
+                isLowStock = it.currentStock <= it.lowStockThreshold,
+                image = it.image
             )
         }
 

@@ -6,4 +6,5 @@ interface InventoryReportRow {
     val unitType: String
     val currentStock: Double
     val lowStockThreshold: Double
+    val image: String?
 }

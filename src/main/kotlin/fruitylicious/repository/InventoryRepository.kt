@@ -13,17 +13,18 @@ interface InventoryRepository : JpaRepository<InventoryEntity, InventoryId> {
 
     @Query(
         """
-        SELECT
-            i.ingredientId AS ingredientId,
-            i.ingredientName AS ingredientName,
-            i.unitType AS unitType,
-            inv.currentStock AS currentStock,
-            i.lowStockThreshold AS lowStockThreshold
-        FROM InventoryEntity inv
-        JOIN IngredientEntity i ON inv.id.ingredientId = i.ingredientId
-        WHERE inv.id.branchId = :branchId
-        ORDER BY i.ingredientName ASC
-        """
+    SELECT
+        i.ingredientId AS ingredientId,
+        i.ingredientName AS ingredientName,
+        i.unitType AS unitType,
+        inv.currentStock AS currentStock,
+        i.lowStockThreshold AS lowStockThreshold,
+        i.image AS image
+    FROM InventoryEntity inv
+    JOIN IngredientEntity i ON inv.id.ingredientId = i.ingredientId
+    WHERE inv.id.branchId = :branchId
+    ORDER BY i.ingredientName ASC
+    """
     )
     fun getInventoryReportRows(
         @Param("branchId") branchId: Int

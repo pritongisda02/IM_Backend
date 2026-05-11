@@ -47,7 +47,8 @@ data class InventoryReportItemDto(
     val unitType: String,
     val currentStock: Double,
     val lowStockThreshold: Double,
-    val isLowStock: Boolean
+    val isLowStock: Boolean,
+    val image: String? = null
 )
 
 data class WasteReportDto(
